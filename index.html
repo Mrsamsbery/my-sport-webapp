@@ -22,9 +22,6 @@
         .upload-text { font-size: 14px; font-weight: 500; color: #e2e8f0; }
         #file-input { display: none; }
         
-        .preview-container { display: none; margin-top: 16px; text-align: center; }
-        .preview-image { max-width: 100%; max-height: 140px; border-radius: 8px; border: 1px solid #1f2735; }
-        
         .btn { background-color: #00e676; color: #0b0e14; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 16px; }
         .btn:disabled { background-color: #1f2735; color: #6c7883; cursor: not-allowed; }
         .limit-counter { text-align: center; font-size: 12px; color: #6c7883; margin-top: 10px; font-weight: 500; }
@@ -119,6 +116,10 @@
                 <div class="section-label">📈 Форма команд и тренды</div>
                 <div class="info-text" id="res-form">-</div>
             </div>
+            <div class="info-block" style="margin-bottom: 0;">
+                <div class="section-label">📊 Аналитика личных встреч</div>
+                <div class="info-text" id="res-stats">-</div>
+            </div>
         </div>
         <div class="card-panel">
             <div class="section-label">🧠 Итоговый вердикт и Уверенность</div>
@@ -174,7 +175,7 @@
         const IMGBB_API_KEY = "ef89d67af46ee9756225dc9ab1f4bd3b"; 
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev"; 
 
-        let currentMode = 'single'; // Режим по умолчанию
+        let currentMode = 'single'; 
         let selectedFile = null;
 
         window.onload = function() {
@@ -224,8 +225,6 @@
             .then(imgResult => {
                 if (imgResult.success) {
                     const imageUrl = imgResult.data.url;
-                    
-                    // Выбираем эндпоинт в зависимости от выбранного Таба
                     const endpoint = currentMode === 'single' ? '/api/analyze' : '/api/analyze_express';
                     
                     return fetch(`${BACKEND_URL}${endpoint}`, {
@@ -236,7 +235,7 @@
                 } else throw new Error("Ошибка фотохостинга");
             })
             .then(res => {
-                if (res.status === 429 || !res.ok) return res.json().then(errData => { throw new Error(errData.error); });
+                if (!res.ok) return res.json().then(errData => { throw new Error(errData.error || "Ошибка сервера"); });
                 return res.json();
             })
             .then(backendResult => {
@@ -251,13 +250,22 @@
                     document.getElementById('res-outcome').innerText = prediction.outcome;
                     document.getElementById('res-form').innerText = prediction.form;
                     document.getElementById('res-stats').innerText = prediction.stats;
-                    document.getElementById('res-odds').innerText = prediction.odds_analysis;
                     document.getElementById('res-reason').innerText = prediction.reason;
                     document.getElementById('res-percent').innerText = prediction.percent + "%";
                     document.getElementById('res-circle').style.strokeDasharray = `${prediction.percent}, 100`;
+                    
+                    // 🌟 ИСПРАВЛЕНИЕ: Безопасное чтение вложенного объекта odds_analysis
+                    if (prediction.odds_analysis && typeof prediction.odds_analysis === 'object') {
+                        document.getElementById('res-odds').innerHTML = `
+                            <div><b>Вердикт:</b> ${prediction.odds_analysis.verdict || '-'}</div>
+                            <div style="margin-top: 4px;"><b>Выгода:</b> ${prediction.odds_analysis.value_score || '0'}/10 | <b>Оценка маржи:</b> ${prediction.odds_analysis.margin_estimate || '0%'}</div>
+                        `;
+                    } else {
+                        document.getElementById('res-odds').innerText = prediction.odds_analysis || '-';
+                    }
+
                     document.getElementById('result-layout-single').style.display = 'block';
                 } else {
-                    // ОТРИСОВКА ЭКСПРЕССА
                     const express = backendResult.data;
                     document.getElementById('exp-total-verdict').innerText = express.total_verdict;
                     document.getElementById('exp-percent').innerText = express.total_percent + "%";
@@ -281,7 +289,7 @@
             })
             .catch(err => {
                 document.getElementById('loader').style.display = 'none';
-                alert(err.message);
+                alert("Ошибка: " + err.message);
                 resetAnalyzer();
             });
         }
