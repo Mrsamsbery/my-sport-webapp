@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Анализатор Ставок</title>
+    <title>AI Bet Analyzer</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: #0b0e14; color: #ffffff; padding: 16px; display: flex; flex-direction: column; min-height: 100vh; }
         
-        .header { text-align: center; margin-bottom: 15px; padding-top: 10px; }
-        .header h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; color: #fff; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-top: 10px; }
+        .header h1 { font-size: 22px; font-weight: 700; color: #fff; }
         
-        /* СТИЛЬ ДЛЯ ВКЛАДОК (ТАБОВ) */
+        /* КНОПКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА */
+        .lang-btn { background: #141923; color: #00e676; border: 1px solid #1f2735; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .lang-btn:hover { background: #1a202c; }
+
         .tabs-container { display: flex; background: #141923; border-radius: 12px; padding: 4px; margin-bottom: 16px; border: 1px solid #1f2735; }
         .tab-btn { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; color: #6c7883; background: transparent; border: none; border-radius: 8px; cursor: pointer; }
         .tab-btn.active { background: #1a202c; color: #00e676; border: 1px solid rgba(0,230,118,0.1); }
@@ -27,7 +30,6 @@
         .limit-counter { text-align: center; font-size: 12px; color: #6c7883; margin-top: 10px; font-weight: 500; }
         .limit-counter span { color: #00e676; font-weight: 700; }
         
-        /* БЛОКИ РЕЗУЛЬТАТОВ */
         .result-container { display: none; }
         .card-panel { background: #141923; border-radius: 16px; padding: 16px; border: 1px solid #1f2735; margin-bottom: 12px; }
         
@@ -44,7 +46,6 @@
         .info-block { margin-bottom: 14px; }
         .info-text { font-size: 14px; line-height: 1.5; color: #cbd5e1; margin-top: 4px; }
         
-        /* ДИАГРАММА */
         .analytics-row { display: flex; align-items: center; gap: 20px; margin-top: 10px; }
         .chart-wrapper { position: relative; width: 85px; height: 85px; flex-shrink: 0; }
         .circle-chart { transform: rotate(-90deg); width: 100%; height: 100%; }
@@ -52,7 +53,6 @@
         .circle-fill { fill: none; stroke: #00e676; stroke-width: 3.8; stroke-linecap: round; stroke-dasharray: 0, 100; transition: stroke-dasharray 1.2s ease-out; }
         .chart-percentage { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; font-weight: 700; color: #ffffff; }
         
-        /* СТИЛИ КАРТОЧЕК ДЛЯ МАТЧЕЙ В ЭКСПРЕССЕ */
         .express-match-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 12px; margin-top: 10px; }
         .exp-title { font-size: 15px; font-weight: 700; color: #fff; }
         .exp-outcome { font-size: 13px; color: #00e676; font-weight: 600; margin: 4px 0; }
@@ -74,7 +74,8 @@
 <body>
 
     <div class="header">
-        <h1>AI Анализатор Ставок</h1>
+        <h1 id="lbl-title">AI Анализатор Ставок</h1>
+        <button class="lang-btn" id="lang-toggle" onclick="toggleLanguage()">🌐 EN</button>
     </div>
 
     <div class="tabs-container">
@@ -104,25 +105,25 @@
             <div class="tournament-title" id="res-tournament">-</div>
         </div>
         <div class="card-panel outcome-card">
-            <div class="section-label">🎯 Выбор каппера</div>
+            <div class="section-label" id="lbl-capper-choice">🎯 Выбор каппера</div>
             <div class="outcome-value" id="res-outcome">-</div>
         </div>
         <div class="card-panel odds-card">
-            <div class="section-label" style="color: #bb86fc;">📊 Валуйность коэффициентов</div>
+            <div class="section-label" id="lbl-value-odds" style="color: #bb86fc;">📊 Валуйность коэффициентов</div>
             <div class="odds-value" id="res-odds">-</div>
         </div>
         <div class="card-panel">
             <div class="info-block">
-                <div class="section-label">📈 Форма команд и тренды</div>
+                <div class="section-label" id="lbl-teams-form">📈 Форма команд и тренды</div>
                 <div class="info-text" id="res-form">-</div>
             </div>
             <div class="info-block" style="margin-bottom: 0;">
-                <div class="section-label">📊 Аналитика личных встреч</div>
+                <div class="section-label" id="lbl-h2h-stats">📊 Аналитика личных встреч</div>
                 <div class="info-text" id="res-stats">-</div>
             </div>
         </div>
         <div class="card-panel">
-            <div class="section-label">🧠 Итоговый вердикт и Уверенность</div>
+            <div class="section-label" id="lbl-final-verdict">🧠 Итоговый вердикт и Уверенность</div>
             <div class="analytics-row">
                 <div class="chart-wrapper">
                     <svg viewBox="0 0 36 36" class="circle-chart">
@@ -134,16 +135,16 @@
                 <div class="info-text" id="res-reason" style="margin-top:0; flex:1;">-</div>
             </div>
         </div>
-        <button class="btn" style="background-color: #1a202c; color: #6c7883; border: 1px solid #1f2735;" onclick="resetAnalyzer()">Загрузить другой купон</button>
+        <button class="btn btn-reset" style="background-color: #1a202c; color: #6c7883; border: 1px solid #1f2735;" onclick="resetAnalyzer()">Загрузить другой купон</button>
     </div>
 
     <div class="result-container" id="result-layout-express">
         <div class="card-panel outcome-card" style="border-left-color: #bb86fc;">
-            <div class="section-label" style="color: #bb86fc;">🚂 Капперский вердикт по экспрессу</div>
+            <div class="section-label" id="lbl-exp-capper" style="color: #bb86fc;">🚂 Капперский вердикт по экспрессу</div>
             <div class="info-text" id="exp-total-verdict" style="color:#fff; font-size:15px; font-weight:500;">-</div>
         </div>
         <div class="card-panel">
-            <div class="section-label">📊 Общая вероятность прохода поезда</div>
+            <div class="section-label" id="lbl-exp-prob">📊 Общая вероятность прохода поезда</div>
             <div class="analytics-row">
                 <div class="chart-wrapper">
                     <svg viewBox="0 0 36 36" class="circle-chart">
@@ -152,18 +153,18 @@
                     </svg>
                     <div class="chart-percentage" id="exp-percent">0%</div>
                 </div>
-                <div class="info-text" style="margin-top:0; flex:1; color:#6c7883;">Вероятность рассчитана математическим перемножением рисков каждого плеча купона.</div>
+                <div class="info-text" id="lbl-exp-prob-desc" style="margin-top:0; flex:1; color:#6c7883;">Вероятность рассчитана математическим перемножением рисков каждого плеча купона.</div>
             </div>
         </div>
         <div class="card-panel">
-            <div class="section-label" style="margin-bottom: 4px;">📋 Разбор событий внутри купона</div>
+            <div class="section-label" id="lbl-exp-events" style="margin-bottom: 4px;">📋 Разбор событий внутри купона</div>
             <div id="express-matches-list"></div>
         </div>
-        <button class="btn" style="background-color: #1a202c; color: #6c7883; border: 1px solid #1f2735;" onclick="resetAnalyzer()">Загрузить другой купон</button>
+        <button class="btn btn-reset" style="background-color: #1a202c; color: #6c7883; border: 1px solid #1f2735;" onclick="resetAnalyzer()">Загрузить другой купон</button>
     </div>
 
     <div id="history-section">
-        <div class="history-title">📜 Последние ординары</div>
+        <div class="history-title" id="lbl-hist-title">📜 Последние ординары</div>
         <div id="history-list"></div>
     </div>
 
@@ -177,17 +178,120 @@
 
         let currentMode = 'single'; 
         let selectedFile = null;
+        let currentLang = localStorage.getItem('app_lang') || 'ru'; // Сохраняем выбор в кэш телефона
+
+        // Словарь переводов элементов интерфейса
+        const i18n = {
+            ru: {
+                title: "AI Анализатор Ставок",
+                tabSingle: "⚽ Одиночная ставка",
+                tabExpress: "🚂 Разбор Экспресса",
+                uploadSingle: "Выбрать скриншот ординара",
+                uploadExpress: "Выбрать скриншот Экспресса (Купона)",
+                uploadDone: "Скриншот загружен!",
+                btnAnalyze: "Проанализировать ставку",
+                limitsLoading: "Загрузка лимитов...",
+                limitsText: "Осталось бесплатных прогнозов на сегодня: <span>{val}</span>",
+                loaderText: "Обработка купона ИИ...",
+                lblCapperChoice: "🎯 Выбор каппера",
+                lblValueOdds: "📊 Валуйность коэффициентов",
+                lblTeamsForm: "📈 Форма команд и тренды",
+                lblH2hStats: "📊 Аналитика личных встреч",
+                lblFinalVerdict: "🧠 Итоговый вердикт и Уверенность",
+                btnReset: "Загрузить другой купон",
+                lblExpCapper: "🚂 Капперский вердикт по экспрессу",
+                lblExpProb: "📊 Общая вероятность прохода поезда",
+                lblExpProbDesc: "Вероятность рассчитана математическим перемножением рисков каждого плеча купона.",
+                lblExpEvents: "📋 Разбор событий внутри купона",
+                lblHistTitle: "📜 Последние ординары",
+                historyEmpty: "История пуста",
+                histChoice: "Выбор",
+                histConfidence: "🎯 Уверенность",
+                oddsVerdict: "Вердикт",
+                oddsValue: "Выгода",
+                oddsMargin: "Оценка маржи",
+                expChoice: "Выбор купона"
+            },
+            en: {
+                title: "AI Bet Analyzer",
+                tabSingle: "⚽ Single Bet",
+                tabExpress: "🚂 Accumulator (Express)",
+                uploadSingle: "Select single bet screenshot",
+                uploadExpress: "Select Accumulator screenshot",
+                uploadDone: "Screenshot uploaded!",
+                btnAnalyze: "Analyze Bet Now",
+                limitsLoading: "Loading limits...",
+                limitsText: "Free predictions left for today: <span>{val}</span>",
+                loaderText: "AI is processing coupon...",
+                lblCapperChoice: "🎯 Capper's Choice",
+                lblValueOdds: "📊 Odds Value Analysis",
+                lblTeamsForm: "📈 Team Form & Trends",
+                lblH2hStats: "📊 H2H Analytics",
+                lblFinalVerdict: "🧠 Final Verdict & Confidence",
+                btnReset: "Upload Another Coupon",
+                lblExpCapper: "🚂 Accumulator Capper Verdict",
+                lblExpProb: "📊 Total Winning Probability",
+                lblExpProbDesc: "Probability calculated by mathematical multiplication of each leg's risks.",
+                lblExpEvents: "📋 Leg Breakdown Inside Coupon",
+                lblHistTitle: "📜 Recent Singles",
+                historyEmpty: "History is empty",
+                histChoice: "Pick",
+                histConfidence: "🎯 Confidence",
+                oddsVerdict: "Verdict",
+                oddsValue: "Value Score",
+                oddsMargin: "Margin Est.",
+                expChoice: "Coupon Pick"
+            }
+        };
 
         window.onload = function() {
+            applyLanguage();
             loadHistory();
             updateLimitDisplay();
         };
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            localStorage.setItem('app_lang', currentLang);
+            applyLanguage();
+            loadHistory(); // Перерисовать историю
+        }
+
+        function applyLanguage() {
+            const t = i18n[currentLang];
+            document.getElementById('lang-toggle').innerText = currentLang === 'ru' ? "🌐 EN" : "🌐 RU";
+            document.getElementById('lbl-title').innerText = t.title;
+            document.getElementById('tab-single').innerText = t.tabSingle;
+            document.getElementById('tab-express').innerText = t.tabExpress;
+            
+            if(!selectedFile) {
+                document.getElementById('upload-status').innerText = currentMode === 'single' ? t.uploadSingle : t.uploadExpress;
+            } else {
+                document.getElementById('upload-status').innerText = t.uploadDone;
+            }
+            
+            document.getElementById('send-btn').innerText = t.btnAnalyze;
+            document.getElementById('loader-text').innerText = t.loaderText;
+            document.getElementById('lbl-capper-choice').innerText = t.lblCapperChoice;
+            document.getElementById('lbl-value-odds').innerText = t.lblValueOdds;
+            document.getElementById('lbl-teams-form').innerText = t.lblTeamsForm;
+            document.getElementById('lbl-h2h-stats').innerText = t.lblH2hStats;
+            document.getElementById('lbl-final-verdict').innerText = t.lblFinalVerdict;
+            document.getElementById('lbl-exp-capper').innerText = t.lblExpCapper;
+            document.getElementById('lbl-exp-prob').innerText = t.lblExpProb;
+            document.getElementById('lbl-exp-prob-desc').innerText = t.lblExpProbDesc;
+            document.getElementById('lbl-exp-events').innerText = t.lblExpEvents;
+            document.getElementById('lbl-hist-title').innerText = t.lblHistTitle;
+            
+            document.querySelectorAll('.btn-reset').forEach(b => b.innerText = t.btnReset);
+            updateLimitDisplay();
+        }
 
         function setMode(mode) {
             currentMode = mode;
             document.getElementById('tab-single').classList.toggle('active', mode === 'single');
             document.getElementById('tab-express').classList.toggle('active', mode === 'express');
-            document.getElementById('upload-status').innerText = mode === 'single' ? "Выбрать скриншот ординара" : "Выбрать скриншот Экспресса (Купона)";
+            applyLanguage();
             resetAnalyzer();
         }
 
@@ -195,7 +299,14 @@
             fetch(`${BACKEND_URL}/api/get_limits?user_id=${USER_TELEGRAM_ID}`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then(res => res.json())
             .then(data => {
-                if(data.success) document.getElementById('limit-display').innerHTML = `Осталось бесплатных прогнозов на сегодня: <span>${data.left_today}</span>`;
+                if(data.success) {
+                    let val = data.left_today;
+                    // Если ответ на русском, переведем "из" для англ. версии
+                    if (currentLang === 'en' && typeof val === 'string') {
+                        val = val.replace('из', 'of');
+                    }
+                    document.getElementById('limit-display').innerHTML = i18n[currentLang].limitsText.replace('{val}', val);
+                }
             });
         }
 
@@ -204,7 +315,7 @@
         function handleFileSelect(event) {
             selectedFile = event.target.files[0];
             if (!selectedFile) return;
-            document.getElementById('upload-status').innerText = "Скриншот загружен!";
+            document.getElementById('upload-status').innerText = i18n[currentLang].uploadDone;
             document.getElementById('send-btn').disabled = false;
         }
 
@@ -230,17 +341,18 @@
                     return fetch(`${BACKEND_URL}${endpoint}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
-                        body: JSON.stringify({ image_url: imageUrl, user_id: USER_TELEGRAM_ID })
+                        body: JSON.stringify({ image_url: imageUrl, user_id: USER_TELEGRAM_ID, lang: currentLang }) // 🌟 ПЕРЕДАЕМ ТЕКУЩИЙ ЯЗЫК НА СЕРВЕР
                     });
-                } else throw new Error("Ошибка фотохостинга");
+                } else throw new Error("Photo hosting error");
             })
             .then(res => {
-                if (!res.ok) return res.json().then(errData => { throw new Error(errData.error || "Ошибка сервера"); });
+                if (!res.ok) return res.json().then(errData => { throw new Error(errData.error || "Server error"); });
                 return res.json();
             })
             .then(backendResult => {
                 document.getElementById('loader').style.display = 'none';
                 if (!backendResult.success) return;
+                const t = i18n[currentLang];
 
                 if (currentMode === 'single') {
                     const prediction = backendResult.data;
@@ -254,11 +366,10 @@
                     document.getElementById('res-percent').innerText = prediction.percent + "%";
                     document.getElementById('res-circle').style.strokeDasharray = `${prediction.percent}, 100`;
                     
-                    // 🌟 ИСПРАВЛЕНИЕ: Безопасное чтение вложенного объекта odds_analysis
                     if (prediction.odds_analysis && typeof prediction.odds_analysis === 'object') {
                         document.getElementById('res-odds').innerHTML = `
-                            <div><b>Вердикт:</b> ${prediction.odds_analysis.verdict || '-'}</div>
-                            <div style="margin-top: 4px;"><b>Выгода:</b> ${prediction.odds_analysis.value_score || '0'}/10 | <b>Оценка маржи:</b> ${prediction.odds_analysis.margin_estimate || '0%'}</div>
+                            <div><b>${t.oddsVerdict}:</b> ${prediction.odds_analysis.verdict || '-'}</div>
+                            <div style="margin-top: 4px;"><b>${t.oddsValue}:</b> ${prediction.odds_analysis.value_score || '0'}/10 | <b>${t.oddsMargin}:</b> ${prediction.odds_analysis.margin_estimate || '0%'}</div>
                         `;
                     } else {
                         document.getElementById('res-odds').innerText = prediction.odds_analysis || '-';
@@ -277,7 +388,7 @@
                         listContainer.innerHTML += `
                             <div class="express-match-card">
                                 <div class="exp-title">${m.sport} ${m.match}</div>
-                                <div class="exp-outcome">Выбор купона: ${m.outcome}</div>
+                                <div class="exp-outcome">${t.expChoice}: ${m.outcome}</div>
                                 <div class="exp-verdict">${m.verdict}</div>
                             </div>
                         `;
@@ -289,7 +400,7 @@
             })
             .catch(err => {
                 document.getElementById('loader').style.display = 'none';
-                alert("Ошибка: " + err.message);
+                alert(err.message);
                 resetAnalyzer();
             });
         }
@@ -298,18 +409,19 @@
             fetch(`${BACKEND_URL}/api/history?user_id=${USER_TELEGRAM_ID}`, { headers: { "ngrok-skip-browser-warning": "true" } })
             .then(res => res.json())
             .then(result => {
+                const t = i18n[currentLang];
                 if (result.success) {
                     const container = document.getElementById('history-list');
-                    container.innerHTML = result.history.length === 0 ? `<div style="text-align:center; color:#6c7883; font-size:13px; padding:10px;">История пуста</div>` : "";
+                    container.innerHTML = result.history.length === 0 ? `<div style="text-align:center; color:#6c7883; font-size:13px; padding:10px;">${t.historyEmpty}</div>` : "";
                     result.history.forEach(item => {
                         container.innerHTML += `
                             <div class="history-item">
                                 <div class="hist-info">
                                     <div class="hist-match">${item.match_name}</div>
                                     <div class="hist-meta">${item.date} • ${item.tournament || item.sport}</div>
-                                    <div class="hist-outcome">Выбор: <b>${item.outcome}</b></div>
+                                    <div class="hist-outcome">${t.histChoice}: <b>${item.outcome}</b></div>
                                 </div>
-                                <div class="hist-badge">🎯 Уверенность<br><span style="font-size:13px;">${item.percent}%</span></div>
+                                <div class="hist-badge">${t.histConfidence}<br><span style="font-size:13px;">${item.percent}%</span></div>
                             </div>
                         `;
                     });
@@ -323,7 +435,7 @@
             document.getElementById('upload-card').style.display = 'block';
             document.getElementById('history-section').style.display = currentMode === 'single' ? 'block' : 'none';
             document.getElementById('send-btn').disabled = true;
-            document.getElementById('upload-status').innerText = currentMode === 'single' ? "Выбрать скриншот ординара" : "Выбрать скриншот Экспресса (Купона)";
+            applyLanguage();
             selectedFile = null;
             loadHistory();
             updateLimitDisplay();
