@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Спортивный Аналитик</title>
+    <title>AI Анализатор Ставок</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
         body { background-color: #0b0e14; color: #ffffff; padding: 16px; display: flex; flex-direction: column; min-height: 100vh; }
@@ -40,46 +40,67 @@
             <img src="" id="image-preview" class="preview-image">
         </div>
 
-        <button class="btn" id="send-btn" disabled onclick="sendPhotoToBot()">Проанализировать ставку</button>
+        <button class="btn" id="send-btn" disabled onclick="uploadAndSend()">Проанализировать ставку</button>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand(); 
 
-        let base64Data = "";
+        const IMGBB_API_KEY = "ef89d67af46ee9756225dc9ab1f4bd3b"; 
+        let selectedFile = null;
 
         function triggerSelect() {
             document.getElementById('file-input').click();
         }
 
         function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            selectedFile = event.target.files[0];
+            if (!selectedFile) return;
 
-            document.getElementById('upload-status').innerText = "Файл выбран!";
+            document.getElementById('upload-status').innerText = "Файл готов!";
             const reader = new FileReader();
             reader.onload = function(e) {
                 document.getElementById('image-preview').src = e.target.result;
                 document.getElementById('preview-container').style.display = 'block';
                 document.getElementById('send-btn').disabled = false;
-                
-                // Извлекаем чистый Base64 код картинки
-                base64Data = e.target.result.split(',')[1];
             }
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(selectedFile);
         }
 
-        function sendPhotoToBot() {
-            if (!base64Data) return;
-            document.getElementById('send-btn').disabled = true;
-            document.getElementById('send-btn').innerText = "Отправка боту...";
-
-            // Отправляем строку с картинкой в нашего Python-бота
-            tg.sendData(base64Data);
+        function uploadAndSend() {
+            if (!selectedFile || !IMGBB_API_KEY) return;
             
-            // Закрываем WebApp окно
-            tg.close();
+            const btn = document.getElementById('send-btn');
+            btn.disabled = true;
+            btn.innerText = "Загрузка в облако...";
+
+            let formData = new FormData();
+            formData.append("image", selectedFile);
+
+            fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: "POST",
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    btn.innerText = "Передача боту...";
+                    const imageUrl = result.data.url; 
+                    
+                    tg.sendData(imageUrl); 
+                    tg.close();
+                } else {
+                    alert("Ошибка загрузки фотохостинга");
+                    btn.disabled = false;
+                    btn.innerText = "Проанализировать ставку";
+                }
+            })
+            .catch(error => {
+                alert("Ошибка сети: " + error);
+                btn.disabled = false;
+                btn.innerText = "Проанализировать ставку";
+            });
         }
     </script>
 </body>
