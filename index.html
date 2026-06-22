@@ -36,8 +36,11 @@
         .tournament-title { font-size: 13px; color: #6c7883; font-weight: 500; margin-top: 4px; }
         
         .outcome-card { background: linear-gradient(135deg, #152228, #111a24); border-left: 4px solid #00e676; }
+        .odds-card { background: linear-gradient(135deg, #1d1633, #120f24); border-left: 4px solid #bb86fc; }
+        
         .section-label { font-size: 11px; color: #6c7883; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
         .outcome-value { font-size: 22px; font-weight: 800; color: #00e676; }
+        .odds-value { font-size: 14px; line-height: 1.5; color: #e3d5ff; }
         
         .info-block { margin-bottom: 14px; }
         .info-block:last-child { margin-bottom: 0; }
@@ -67,7 +70,7 @@
 
     <div class="header">
         <h1>AI Анализатор Ставок</h1>
-        <p>Профессиональный капперский ИИ-разбор</p>
+        <p>Капперский ИИ-разбор с интернет-аналитикой</p>
     </div>
 
     <div class="main-card" id="upload-card">
@@ -100,13 +103,18 @@
             <div class="outcome-value" id="res-outcome">-</div>
         </div>
 
+        <div class="card-panel odds-card">
+            <div class="section-label" style="color: #bb86fc;">📊 Математический разбор коэффициентов</div>
+            <div class="odds-value" id="res-odds">-</div>
+        </div>
+
         <div class="card-panel">
             <div class="info-block">
-                <div class="section-label">📈 Форма команд и кондиции</div>
+                <div class="section-label">📈 Форма команд (Контекст из сети)</div>
                 <div class="info-text" id="res-form">-</div>
             </div>
             <div class="info-block" style="margin-top: 14px;">
-                <div class="section-label">📊 Статистика и личные встречи</div>
+                <div class="section-label">📊 Статистика и тренды</div>
                 <div class="info-text" id="res-stats">-</div>
             </div>
         </div>
@@ -137,7 +145,6 @@
         tg.expand(); 
 
         const USER_TELEGRAM_ID = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : "guest";
-
         const IMGBB_API_KEY = "ef89d67af46ee9756225dc9ab1f4bd3b"; 
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev"; 
 
@@ -149,14 +156,13 @@
         };
 
         function updateLimitDisplay() {
-            // Добавили специальный заголовок, обходящий экран ngrok
             fetch(`${BACKEND_URL}/api/get_limits?user_id=${USER_TELEGRAM_ID}`, {
                 headers: { "ngrok-skip-browser-warning": "true" }
             })
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    document.getElementById('limit-display').innerHTML = `Осталось бесплатных прогнозов на сегодня: <span>${data.left_today} из 5</span>`;
+                    document.getElementById('limit-display').innerHTML = `Осталось бесплатных прогнозов на сегодня: <span>${data.left_today}</span>`;
                 }
             })
             .catch(err => console.log("Ошибка лимитов: " + err));
@@ -199,13 +205,13 @@
             .then(imgResult => {
                 if (imgResult.success) {
                     const imageUrl = imgResult.data.url;
-                    document.getElementById('loader-text').innerText = "Проверка лимитов и разбор линии...";
+                    document.getElementById('loader-text').innerText = "Парсинг интернета и ИИ-анализ...";
                     
                     return fetch(`${BACKEND_URL}/api/analyze`, {
                         method: "POST",
                         headers: { 
                             "Content-Type": "application/json",
-                            "ngrok-skip-browser-warning": "true" // Пробиваем ngrok и тут
+                            "ngrok-skip-browser-warning": "true"
                         },
                         body: JSON.stringify({ 
                             image_url: imageUrl,
@@ -234,6 +240,7 @@
                     document.getElementById('res-outcome').innerText = prediction.outcome;
                     document.getElementById('res-form').innerText = prediction.form;
                     document.getElementById('res-stats').innerText = prediction.stats;
+                    document.getElementById('res-odds').innerText = prediction.odds_analysis; // Заполнение нового поля
                     document.getElementById('res-reason').innerText = prediction.reason;
                     
                     document.getElementById('res-percent').innerText = prediction.percent + "%";
@@ -253,7 +260,7 @@
 
         function loadHistory() {
             fetch(`${BACKEND_URL}/api/history?user_id=${USER_TELEGRAM_ID}`, {
-                headers: { "ngrok-skip-browser-warning": "true" } // Пробиваем ngrok для истории
+                headers: { "ngrok-skip-browser-warning": "true" }
             })
             .then(res => res.json())
             .then(result => {
