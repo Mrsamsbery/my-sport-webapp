@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Спортивный Аналитик</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0b0e14;
+            color: #ffffff;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-top: 10px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: #6c7883;
+        }
+
+        .main-card {
+            background: #141923;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #1f2735;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .upload-zone {
+            border: 2px dashed #2c384e;
+            border-radius: 12px;
+            padding: 32px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #1a202c;
+        }
+
+        .upload-zone:hover {
+            border-color: #00e676;
+            background: #1d2636;
+        }
+
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .upload-text {
+            font-size: 15px;
+            font-weight: 500;
+            color: #e2e8f0;
+            margin-bottom: 6px;
+        }
+
+        .upload-hint {
+            font-size: 12px;
+            color: #6c7883;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .preview-container {
+            display: none;
+            margin-top: 16px;
+            text-align: center;
+        }
+
+        .preview-image {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 8px;
+            border: 1px solid #2c384e;
+        }
+
+        .btn {
+            background-color: #00e676;
+            color: #0b0e14;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 16px;
+            box-shadow: 0 4px 12px rgba(0, 230, 118, 0.2);
+        }
+
+        .btn:hover {
+            background-color: #00c865;
+        }
+
+        .btn:disabled {
+            background-color: #1f2735;
+            color: #6c7883;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Блок результата (изначально скрыт) */
+        .result-container {
+            display: none;
+            margin-top: 8px;
+        }
+
+        .match-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #fff;
+        }
+
+        .sport-badge {
+            display: inline-block;
+            background: #222b3c;
+            color: #00e676;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .outcome-box {
+            background: #1a202c;
+            border-radius: 12px;
+            padding: 16px;
+            border-left: 4px solid #00e676;
+            margin-bottom: 16px;
+        }
+
+        .outcome-label {
+            font-size: 12px;
+            color: #6c7883;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+        }
+
+        .outcome-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .progress-section {
+            margin-bottom: 16px;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #e2e8f0;
+        }
+
+        .progress-bar-bg {
+            background: #222b3c;
+            height: 10px;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            background: linear-gradient(90deg, #00c865, #00e676);
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease-out;
+            border-radius: 5px;
+        }
+
+        .reason-box {
+            background: #1a202c;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #cbd5e1;
+        }
+
+        .footer-counter {
+            text-align: center;
+            font-size: 12px;
+            color: #4a5568;
+            margin-top: auto;
+            padding-top: 20px;
+        }
+
+        /* Анимация загрузки */
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #00e676;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+    <!-- Подключаем скрипт WebApp Телеграма -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+    <div class="header">
+        <h1>AI Анализатор Линии</h1>
+        <p>Загрузите скриншот главных исходов матча</p>
+    </div>
+
+    <div class="main-card">
+        <!-- Зона загрузки -->
+        <div class="upload-zone" onclick="triggerSelect()">
+            <span class="upload-icon">📸</span>
+            <div class="upload-text">Нажмите, чтобы выбрать скриншот</div>
+            <div class="upload-hint">Поддерживаются форматы JPG, PNG</div>
+        </div>
+        <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
+
+        <!-- Превью картинки -->
+        <div class="preview-container" id="preview-container">
+            <img src="" id="image-preview" class="preview-image" alt="Превью">
+        </div>
+
+        <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">Проанализировать ставку</button>
+    </div>
+
+    <!-- Индикатор загрузки -->
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <div style="font-size: 14px; color: #6c7883;">Нейросеть считывает линию и рассчитывает вероятности...</div>
+    </div>
+
+    <!-- Блок вывода результатов -->
+    <div class="main-card result-container" id="result-card">
+        <div class="match-title" id="res-match">Реал Мадрид — Осасуна</div>
+        <div class="sport-badge" id="res-sport">Футбол</div>
+
+        <div class="outcome-box">
+            <div class="outcome-label">Самый вероятный исход</div>
+            <div class="outcome-value" id="res-outcome">Победа 1 (П1)</div>
+        </div>
+
+        <div class="progress-section">
+            <div class="progress-header">
+                <span>Математическая уверенность</span>
+                <span id="res-percent">85%</span>
+            </div>
+            <div class="progress-bar-bg">
+                <div class="progress-bar-fill" id="res-bar"></div>
+            </div>
+        </div>
+
+        <div class="outcome-label" style="margin-bottom: 6px;">Аналитическое обоснование</div>
+        <div class="reason-box" id="res-reason">
+            Команда хозяев демонстрирует отличную форму в домашних матчах. Статистика личных встреч и кадровые проблемы гостей подтверждают высокую вероятность данного исхода.
+        </div>
+    </div>
+
+    <div class="footer-counter">
+        Доступно анализов сегодня: 9 из 10
+    </div>
+
+    <script>
+        // Инициализация Telegram WebApp
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Раскрываем на весь экран
+
+        let base64Image = "";
+
+        function triggerSelect() {
+            document.getElementById('file-input').click();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                // Показываем превью
+                document.getElementById('image-preview').src = e.target.result;
+                document.getElementById('preview-container').style.display = 'block';
+                document.getElementById('analyze-btn').disabled = false;
+                
+                // Сохраняем картинку в формате base64 (если понадобится передать)
+                base64Image = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        function startAnalysis() {
+            // Скрываем старые результаты, если были, и показываем лоадер
+            document.getElementById('result-card').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('analyze-btn').disabled = true;
+
+            // Имитируем отправку данных боту и получение ответа через 2.5 секунды
+            // В реальном приложении здесь будет связка с бэкэндом бота через tg.sendData()
+            setTimeout(() => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('analyze-btn').disabled = false;
+                
+                // Заполняем "демо" данными для проверки визуала (в проде данные прилетят от бота)
+                document.getElementById('res-match').innerText = "Проанализированный Матч";
+                document.getElementById('res-sport').innerText = "Определен автоматически";
+                document.getElementById('res-outcome').innerText = "Тотал Больше 2.5";
+                document.getElementById('res-percent').innerText = "78%";
+                document.getElementById('res-bar').style.width = "78%";
+                document.getElementById('res-reason').innerText = "На основе распознанных коэффициентов линии и тренда команд, данный исход имеет наивысшее математическое ожидание в текущей сессии.";
+                
+                // Показываем карточку результата
+                document.getElementById('result-card').style.display = 'block';
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
