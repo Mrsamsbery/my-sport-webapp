@@ -104,6 +104,7 @@
             padding: 12px;
             border-radius: 12px;
             border: 1px solid #1e2636;
+            word-break: break-all;
         }
 
         .counter-box span {
@@ -413,8 +414,9 @@
         }
 
         async function loadLimits() {
+            const counterBox = document.getElementById("limits-counter");
             try {
-                // Жесткий POST запрос для обхода любых страниц-заглушек ngrok
+                // Строгий POST запрос для обхода заглушек ngrok
                 const response = await fetch(`${BACKEND_URL}/api/user`, {
                     method: "POST",
                     headers: { 
@@ -423,9 +425,13 @@
                     },
                     body: JSON.stringify({ user_id: getTelegramUserId() })
                 });
-                const data = await response.json();
                 
-                const counterBox = document.getElementById("limits-counter");
+                if (!response.ok) {
+                    counterBox.innerText = `Ошибка сервера: Статус ${response.status}`;
+                    return;
+                }
+
+                const data = await response.json();
                 if (data.success) {
                     isUserVip = data.is_vip; 
                     if (isUserVip) {
@@ -433,9 +439,12 @@
                     } else {
                         counterBox.innerHTML = `Осталось бесплатных прогнозов: <span id="req-left">${data.requests_left}</span>`;
                     }
+                } else {
+                    counterBox.innerText = `Ошибка БД: ${data.error}`;
                 }
             } catch (e) {
-                document.getElementById("limits-counter").innerText = "Ошибка загрузки лимитов.";
+                // Если ngrok выключен или адрес неверный, выведется "Сбой сети: Failed to fetch"
+                counterBox.innerText = `Сбой сети: ${e.message}`;
             }
         }
 
