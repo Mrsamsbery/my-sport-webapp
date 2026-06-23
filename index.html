@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Ставки Анализ</title>
-    <!-- Официальный скрипт Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #11141a; /* Твой темный интерфейс */
+            background-color: #11141a;
             color: #ffffff;
             margin: 0;
             padding: 20px;
@@ -38,7 +37,7 @@
             margin-bottom: 20px;
             font-size: 14px;
             border: 1px solid #2c354a;
-            color: #00ff88; /* Красивый зеленый акцент */
+            color: #00ff88;
         }
 
         textarea {
@@ -101,18 +100,14 @@
             <h2>AI Анализатор Ставок</h2>
         </div>
 
-        <!-- Индикатор лимитов -->
         <div id="limits-counter" class="counter-box">
             🔄 Получение лимитов с сервера...
         </div>
 
-        <!-- Поле ввода -->
         <textarea id="text-input" placeholder="Вставьте текст купона или данные матча..."></textarea>
 
-        <!-- Кнопка действия -->
         <button id="submit-btn" onclick="sendDataToProcess()">Обработать данные ИИ</button>
 
-        <!-- Блок вывода ответа -->
         <div id="result-block" class="result-box" style="display: none;"></div>
     </div>
 
@@ -122,15 +117,15 @@
         tg.ready();
         tg.expand(); 
 
-        // Твой IP сервера Hostman
-        const BACKEND_URL = "http://212.192.3.244:5000"; 
+        // Ссылка от ngrok, скопированная из консоли твоего сервера Hostman
+        const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev"; 
 
         // Получаем уникальный Telegram ID пользователя
         function getTelegramUserId() {
             if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
                 return tg.initDataUnsafe.user.id;
             }
-            return "guest"; // Заглушка на случай тестов в браузере компьютера
+            return "guest";
         }
 
         // 1. ЗАГРУЗКА ЛИМИТОВ ПРИ СТАРТЕ СТРАНИЦЫ
@@ -218,13 +213,12 @@
                 }
             } catch (error) {
                 console.error(error);
-                alert("Не удалось отправить данные на сервер.");
+                alert("Не удалось отправить данные на server.");
                 btn.disabled = false;
                 btn.innerText = "Обработать данные ИИ";
             }
         }
 
-        // Автозапуск загрузки лимитов при открытии WebApp
         window.onload = loadUserData;
     </script>
 </body>
