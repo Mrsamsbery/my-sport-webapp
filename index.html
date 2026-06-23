@@ -15,6 +15,7 @@
             --text-muted: #768c7e;
             --border-color: #1b2d22;
             --success-color: #00ff66;
+            --card-gradient: linear-gradient(145deg, #0d1510, #111e16);
         }
 
         body {
@@ -30,57 +31,62 @@
 
         .header {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
         .header h1 {
-            font-size: 22px;
-            margin: 0 0 4px 0;
+            font-size: 24px;
+            margin: 0 0 6px 0;
             color: var(--accent-color);
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 255, 102, 0.2);
         }
         .header p {
             font-size: 13px;
             color: var(--text-muted);
             margin: 0;
+            font-weight: 500;
         }
 
         .upload-zone {
-            background-color: var(--card-bg);
+            background: var(--card-gradient);
             border: 2px dashed var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 24px;
+            padding: 30px 20px;
             text-align: center;
             cursor: pointer;
             margin-bottom: 20px;
             position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
         .upload-zone:active {
             border-color: var(--accent-color);
+            transform: scale(0.98);
         }
         .upload-icon {
-            font-size: 44px;
-            margin-bottom: 10px;
-            display: block;
+            font-size: 48px;
+            margin-bottom: 12px;
+            display: inline-block;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 102, 0.3));
         }
         .upload-text {
             font-size: 14px;
             color: var(--text-color);
-            font-weight: 500;
+            font-weight: 600;
+            line-height: 1.4;
         }
         
         #preview-img {
             display: none;
-            width: 90px;
-            height: 90px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
-            border-radius: 14px;
-            margin: 0 auto 12px auto;
+            border-radius: 18px;
+            margin: 0 auto 14px auto;
             border: 2px solid var(--accent-color);
-            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
         }
 
         #file-input {
@@ -92,13 +98,14 @@
             color: #000000;
             border: none;
             width: 100%;
-            padding: 15px;
-            border-radius: 14px;
+            padding: 16px;
+            border-radius: 16px;
             font-size: 16px;
-            font-weight: 700;
+            font-weight: 800;
+            letter-spacing: 0.5px;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: 0 4px 15px rgba(0, 255, 102, 0.2);
+            box-shadow: 0 4px 18px rgba(0, 255, 102, 0.25);
         }
         .btn:disabled {
             background-color: #142119;
@@ -107,34 +114,64 @@
             cursor: not-allowed;
         }
 
+        /* --- ИНТЕРАКТИВНЫЙ ИИ-ЛОАДЕР --- */
         .loader-container {
             display: none;
-            text-align: center;
-            margin: 25px 0;
-            background: var(--card-bg);
+            background: var(--card-gradient);
             border: 1px solid var(--border-color);
-            padding: 20px;
-            border-radius: 16px;
+            padding: 24px;
+            border-radius: 24px;
+            margin: 25px 0;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .spinner-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
         }
         .spinner {
-            width: 44px;
-            height: 44px;
-            border: 4px solid rgba(0, 255, 102, 0.1);
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 255, 102, 0.05);
             border-top: 4px solid var(--accent-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 14px auto;
         }
-        .loader-chain {
-            font-size: 14px;
-            color: var(--accent-color);
-            font-weight: 600;
-            min-height: 20px;
+        .loader-steps {
+            text-align: left;
+            max-width: 280px;
+            margin: 0 auto;
         }
-        .loader-subtext {
-            font-size: 12px;
+        .step-item {
+            font-size: 13px;
             color: var(--text-muted);
-            margin-top: 6px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+        .step-item.active {
+            color: var(--accent-color);
+            font-weight: 700;
+            transform: translateX(4px);
+        }
+        .step-item.done {
+            color: #4a7556;
+        }
+        .step-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--text-muted);
+            border-radius: 50%;
+        }
+        .step-item.active .step-dot {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+        }
+        .step-item.done .step-dot {
+            background-color: #4a7556;
         }
 
         @keyframes spin {
@@ -142,143 +179,232 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* --- ИНТЕРАКТИВНЫЕ КАРТОЧКИ РЕЗУЛЬТАТОВ --- */
         .results-panel {
             display: none;
-            margin-top: 24px;
+            margin-top: 28px;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .panel-title {
             font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
+            font-weight: 800;
+            margin-bottom: 18px;
             color: var(--accent-color);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .card {
-            background-color: var(--card-bg);
+            background: var(--card-gradient);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 20px;
             padding: 16px;
-            margin-bottom: 14px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
         .card-header {
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--accent-color);
-            margin-bottom: 6px;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 8px;
             font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
         .card-body {
             font-size: 14px;
-            line-height: 1.5;
-            color: #e0e0e0;
+            line-height: 1.55;
+            color: #e2e8f0;
         }
         
         .match-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 4px;
+            font-size: 19px;
+            font-weight: 800;
+            margin-bottom: 6px;
             color: #ffffff;
         }
         .match-meta {
             font-size: 13px;
-            color: var(--text-muted);
+            color: var(--accent-color);
+            font-weight: 600;
         }
         .pick-highlight {
             font-size: 16px;
             font-weight: 700;
             color: #ffffff;
-            background: #142a1d;
-            padding: 10px;
-            border-radius: 8px;
+            background: rgba(0, 255, 102, 0.06);
+            padding: 12px;
+            border-radius: 12px;
             border-left: 4px solid var(--accent-color);
+        }
+
+        /* Виджеты внутри карточек */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 14px;
+        }
+        .stat-badge {
+            background: #111a14;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-badge span {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+        }
+        .stat-badge strong {
+            font-size: 15px;
+            color: #ffffff;
+        }
+
+        /* Шкала уверенности */
+        .confidence-box {
+            margin-top: 12px;
+        }
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .confidence-track {
+            height: 6px;
+            background: #16241c;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .confidence-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00cc52, var(--accent-color));
+            width: 0%;
+            transition: width 1s ease-in-out;
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
         }
 
         .limit-bar {
             text-align: center;
             font-size: 12px;
             color: var(--text-muted);
-            margin-top: 12px;
+            margin-top: 14px;
+            font-weight: 500;
         }
         .error-card {
             display: none;
-            background-color: rgba(255, 69, 58, 0.1);
-            border: 1px solid rgba(255, 69, 58, 0.3);
-            border-radius: 12px;
-            padding: 12px;
+            background-color: rgba(255, 69, 58, 0.08);
+            border: 1px solid rgba(255, 69, 58, 0.25);
+            border-radius: 16px;
+            padding: 14px;
             color: #ff453a;
             font-size: 14px;
             text-align: center;
             margin-bottom: 20px;
+            font-weight: 500;
         }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Зелёный Аналитик</h1>
-        <p>ИИ-разбор спортивных событий</p>
+        <h1>Ставки AI Аналитика</h1>
+        <p>Нейросетевой разбор спортивных купонов</p>
     </div>
 
     <div class="upload-zone" onclick="triggerFileInput()">
         <img id="preview-img" src="" alt="Превью">
-        <div id="upload-icon-box" class="upload-icon">🟢</div>
+        <div id="upload-icon-box" class="upload-icon">📸</div>
         <div class="upload-text" id="upload-status-text">Нажмите, чтобы загрузить купон ставки</div>
         <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
     </div>
 
-    <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ СКРИНШОТ</button>
-    <div class="limit-bar" id="limit-info">Синхронизация...</div>
+    <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ С КЛЮЧОМ AI</button>
+    <div class="limit-bar" id="limit-info">Синхронизация шлюза...</div>
 
+    <!-- ИНТЕРАКТИВНЫЙ ИИ-ЛОАДЕР С ЭТАПАМИ -->
     <div class="loader-container" id="loader">
-        <div class="spinner"></div>
-        <div class="loader-chain" id="loader-chain-text">Сжатие купона...</div>
-        <div class="loader-subtext">Мобильный алгоритм оптимизирует вес файла</div>
+        <div class="spinner-box">
+            <div class="spinner"></div>
+        </div>
+        <div class="loader-steps">
+            <div class="step-item" id="step-0"><div class="step-dot"></div>Оптимизация веса файла...</div>
+            <div class="step-item" id="step-1"><div class="step-dot"></div>Считывание текста купона...</div>
+            <div class="step-item" id="step-2"><div class="step-dot"></div>Анализ трендов и формы команд...</div>
+            <div class="step-item" id="step-3"><div class="step-dot"></div>Калибровка валуйности...</div>
+            <div class="step-item" id="step-4"><div class="step-dot"></div>Формирование ИИ-вердикта...</div>
+        </div>
     </div>
 
     <div class="error-card" id="error-block"></div>
 
+    <!-- ИНТЕРАКТИВНЫЕ КАРТОЧКИ С ОТВЕТОМ -->
     <div class="results-panel" id="results-panel">
-        <div class="panel-title">📊 Результаты разбора ИИ</div>
+        <div class="panel-title">📋 Заключение нейроанализа</div>
 
-        <div class="card" style="border-left: 4px solid var(--accent-color);">
-            <div class="card-header" id="ui-sport">Событие</div>
+        <!-- Карточка события -->
+        <div class="card" style="border-top: 3px solid var(--accent-color);">
+            <div class="card-header">📌 Событие и турнир</div>
             <div class="match-title" id="ui-match-title">-</div>
             <div class="match-meta" id="ui-league">-</div>
         </div>
 
+        <!-- Карточка выбора -->
         <div class="card">
-            <div class="card-header">🎯 Прогноз капнера (Из купона)</div>
+            <div class="card-header">🎯 Выбор из купона</div>
             <div class="pick-highlight" id="ui-capper-pick">-</div>
         </div>
 
+        <!-- Карточка аналитики коэффициентов -->
         <div class="card">
-            <div class="card-header">📈 Аналитика коэффициентов и Валуйность</div>
+            <div class="card-header">📈 Оценка валуйности (Value)</div>
             <div class="card-body" id="ui-value-verdict">-</div>
-            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 13px; color: var(--accent-color);">
-                <div>Выгода: <strong id="ui-value-profit">-</strong></div>
-                <div>Маржа букмекера: <strong id="ui-margin-eval">-</strong></div>
+            <div class="stats-grid">
+                <div class="stat-badge">
+                    <span>Выгода</span>
+                    <strong id="ui-value-profit">-</strong>
+                </div>
+                <div class="stat-badge">
+                    <span>Маржа БК</span>
+                    <strong id="ui-margin-eval">-</strong>
+                </div>
             </div>
         </div>
 
+        <!-- Карточка формы -->
         <div class="card">
-            <div class="card-header">📊 Текущая форма команд и Тренды</div>
+            <div class="card-header">📊 Тренды и состояние команд</div>
             <div class="card-body" id="ui-form-trends">-</div>
         </div>
 
+        <!-- Карточка личек -->
         <div class="card">
-            <div class="card-header">👥 Статистика личных встреч</div>
+            <div class="card-header">👥 История очных противостояний</div>
             <div class="card-body" id="ui-head-to-head">-</div>
         </div>
 
-        <div class="card" style="background: linear-gradient(145deg, #0d1510, #14241a); border: 1px solid var(--accent-color);">
-            <div class="card-header" style="color: #ffffff;">🧠 Итоговое заключение эксперта</div>
-            <div class="card-body" id="ui-final-verdict" style="font-weight: 500; color: #ffffff; margin-bottom: 8px;">-</div>
-            <div style="font-size: 13px; color: var(--accent-color);">
-                Уверенность ИИ: <strong id="ui-confidence-percent">0%</strong>
+        <!-- Карточка вердикта -->
+        <div class="card" style="background: linear-gradient(145deg, #0d1510, #16291b); border: 1px solid rgba(0, 255, 102, 0.3);">
+            <div class="card-header" style="color: var(--accent-color);">🧠 Математический итог</div>
+            <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
+            
+            <div class="confidence-box">
+                <div class="confidence-label">
+                    <span style="color: var(--text-muted); font-size: 12px;">Уверенность модели:</span>
+                    <strong id="ui-confidence-percent" style="color: var(--accent-color);">0%</strong>
+                </div>
+                <div class="confidence-track">
+                    <div class="confidence-bar" id="ui-confidence-bar"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -287,7 +413,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ======= ССЫЛКА НА ТВОЙ СЕРВЕР NGROK =======
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev";
         
         let selectedFile = null;
@@ -309,10 +434,10 @@
                 });
                 const data = await response.json();
                 if (data.success) {
-                    document.getElementById("limit-info").innerText = `Доступно разборов на сегодня: ${data.requests_left} из 3`;
+                    document.getElementById("limit-info").innerText = `Доступно ИИ-разборов сегодня: ${data.requests_left} из 3`;
                 }
             } catch (err) {
-                document.getElementById("limit-info").innerText = "Сервер лимитов активен";
+                document.getElementById("limit-info").innerText = "Шлюз AI активен";
             }
         }
         fetchUserLimits();
@@ -333,37 +458,41 @@
                 previewImg.style.display = "block";
                 iconBox.style.display = "none"; 
                 
-                document.getElementById("upload-status-text").innerText = "Фото успешно прикреплено";
+                document.getElementById("upload-status-text").innerText = "Купон успешно добавлен";
                 document.getElementById("analyze-btn").disabled = false;
             }
         }
 
-        function runThinkingChain() {
-            const chainText = document.getElementById("loader-chain-text");
+        // --- УПРАВЛЕНИЕ ЖИВЫМИ ЭТАПАМИ АНИМАЦИИ ---
+        function updateLoaderSteps() {
             const steps = [
-                "Передача сжатого купона ИИ... 📥",
-                "ИИ считывает текст и параметры ставки... 🔍",
-                "Сканирование базы данных матчей... 💾",
-                "Анализ формы команд и личных встреч... 📊",
-                "Генерация финального математического вердикта... 🧠"
+                document.getElementById("step-0"),
+                document.getElementById("step-1"),
+                document.getElementById("step-2"),
+                document.getElementById("step-3"),
+                document.getElementById("step-4")
             ];
+
+            // Сброс шагов
+            steps.forEach(s => s.className = "step-item");
             
-            let currentStep = 0;
-            chainText.innerText = steps[0];
-            
+            // Начинаем цепочку
+            steps[0].className = "step-item active";
+
+            let current = 0;
             const interval = setInterval(() => {
-                currentStep++;
-                if (currentStep < steps.length) {
-                    chainText.innerText = steps[currentStep];
+                if (current < steps.length - 1) {
+                    steps[current].className = "step-item done";
+                    current++;
+                    steps[current].className = "step-item active";
                 } else {
                     clearInterval(interval);
                 }
-            }, 1800); 
-            
+            }, 2000); // Каждый этап красиво переключается раз в 2 секунды
+
             return interval;
         }
 
-        // Внутренний алгоритм ультра-быстрого сжатия картинки на Canvas
         function compressImage(file, maxWidth, maxHeight, quality) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -415,10 +544,10 @@
             resultsPanel.style.display = "none";
             analyzeBtn.disabled = true;
 
-            const thinkingInterval = runThinkingChain();
+            // Запуск красивой анимации шагов мыслей ИИ
+            const stepsInterval = updateLoaderSteps();
 
             try {
-                // Сжимаем файл прямо на смартфоне (делаем максимум 1200px по широкой стороне)
                 const compressedBlob = await compressImage(selectedFile, 1200, 1200, 0.7);
 
                 const formData = new FormData();
@@ -426,12 +555,9 @@
                 formData.append("user_id", String(userId));
                 formData.append("mode", "single");
 
-                // Отправляем легкий файл напрямую на твой Flask
                 const response = await fetch(`${BACKEND_URL}/api/process/`, {
                     method: "POST",
-                    headers: { 
-                        "ngrok-skip-browser-warning": "true"
-                    },
+                    headers: { "ngrok-skip-browser-warning": "true" },
                     body: formData
                 });
 
@@ -442,9 +568,9 @@
                 const data = await response.json();
 
                 if (data.success && data.analysis) {
-                    document.getElementById("ui-sport").innerText = data.analysis.sport || "⚽ Ставки";
+                    // Наполнение блоков данными
                     document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч";
-                    document.getElementById("ui-league").innerText = data.analysis.league || "Чемпионат";
+                    document.getElementById("ui-league").innerText = data.analysis.league || "Турнир не определен";
                     document.getElementById("ui-capper-pick").innerText = data.analysis.capper_pick || "-";
                     document.getElementById("ui-value-verdict").innerText = data.analysis.value_verdict || "-";
                     document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "-";
@@ -452,18 +578,29 @@
                     document.getElementById("ui-form-trends").innerText = data.analysis.form_trends || "-";
                     document.getElementById("ui-head-to-head").innerText = data.analysis.head_to_head || "-";
                     document.getElementById("ui-final-verdict").innerText = data.analysis.final_verdict || "-";
-                    document.getElementById("ui-confidence-percent").innerText = (data.analysis.confidence_percent || "80") + "%";
-
-                    clearInterval(thinkingInterval);
+                    
+                    // Расчёт шкалы уверенности
+                    const conf = data.analysis.confidence_percent || 75;
+                    document.getElementById("ui-confidence-percent").innerText = conf + "%";
+                    
+                    clearInterval(stepsInterval);
                     loader.style.display = "none";
                     resultsPanel.style.display = "block";
+
+                    // Плавный запуск прогресс-бара уверенности после отрисовки карточки
+                    setTimeout(() => {
+                        document.getElementById("ui-confidence-bar").style.width = conf + "%";
+                    }, 100);
+
                     fetchUserLimits();
+                } else {
+                    throw new Error(data.error || "Ошибка генерации разбора.");
                 }
 
             } catch (err) {
-                clearInterval(thinkingInterval);
+                clearInterval(stepsInterval);
                 loader.style.display = "none";
-                errorBlock.innerText = "Ошибка: " + err.message;
+                errorBlock.innerText = "Сбой: " + err.message;
                 errorBlock.style.display = "block";
                 analyzeBtn.disabled = false;
             }
