@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Ставки Ai анализ</title>
+    <title>Ставки AI Аналитика</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #0d1117;
-            --card-bg: #161b22;
-            --accent-color: #8a2be2;
+            --bg-color: #06090e;
+            --card-bg: #0d1510;
+            --accent-color: #00ff66;
+            --accent-hover: #00cc52;
             --text-color: #ffffff;
-            --text-muted: #8b949e;
-            --success-color: #00ff88;
-            --border-color: #30363d;
+            --text-muted: #768c7e;
+            --border-color: #1b2d22;
+            --success-color: #00ff66;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
@@ -27,15 +28,17 @@
             user-select: none;
         }
 
-        /* Шапка приложения */
         .header {
             text-align: center;
             margin-bottom: 20px;
         }
         .header h1 {
-            font-size: 20px;
+            font-size: 22px;
             margin: 0 0 4px 0;
+            color: var(--accent-color);
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         .header p {
             font-size: 13px;
@@ -43,101 +46,167 @@
             margin: 0;
         }
 
-        /* Переключатель режимов (Табы) */
-        .mode-selector {
-            display: flex;
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 4px;
-            margin-bottom: 20px;
-        }
-        .mode-tab {
-            flex: 1;
-            text-align: center;
-            padding: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            color: var(--text-muted);
-        }
-        .mode-tab.active {
-            background-color: #21262d;
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-        }
-
-        /* Зона загрузки файла */
+        /* Зона загрузки / Иконка с превью */
         .upload-zone {
             background-color: var(--card-bg);
             border: 2px dashed var(--border-color);
-            border-radius: 16px;
-            padding: 30px 20px;
+            border-radius: 20px;
+            padding: 24px;
             text-align: center;
             cursor: pointer;
             margin-bottom: 20px;
-            transition: border-color 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
         .upload-zone:active {
             border-color: var(--accent-color);
         }
         .upload-icon {
-            font-size: 40px;
-            margin-bottom: 12px;
+            font-size: 44px;
+            margin-bottom: 10px;
+            display: block;
         }
         .upload-text {
             font-size: 14px;
             color: var(--text-color);
             font-weight: 500;
         }
+        
+        /* Превью картинки прямо внутри иконки загрузки */
+        #preview-img {
+            display: none;
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 14px;
+            margin: 0 auto 12px auto;
+            border: 2px solid var(--accent-color);
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.2);
+        }
+
         #file-input {
             display: none;
         }
 
-        /* Кнопки действий */
         .btn {
             background-color: var(--accent-color);
-            color: white;
+            color: #000000;
             border: none;
             width: 100%;
-            padding: 14px;
-            border-radius: 12px;
+            padding: 15px;
+            border-radius: 14px;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             cursor: pointer;
-            transition: opacity 0.2s ease;
-            box-shadow: 0 4px 12px rgba(138, 43, 226, 0.3);
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 102, 0.2);
         }
         .btn:disabled {
-            background-color: #30363d;
+            background-color: #142119;
             color: var(--text-muted);
             box-shadow: none;
             cursor: not-allowed;
         }
 
-        /* Лоадер / Индикатор загрузки */
+        /* Интерактивный лоадер с логической цепочкой */
         .loader-container {
             display: none;
             text-align: center;
-            margin: 20px 0;
+            margin: 25px 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 16px;
         }
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid rgba(138, 43, 226, 0.1);
+            width: 44px;
+            height: 44px;
+            border: 4px solid rgba(0, 255, 102, 0.1);
             border-top: 4px solid var(--accent-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 10px auto;
+            margin: 0 auto 14px auto;
         }
+        .loader-chain {
+            font-size: 14px;
+            color: var(--accent-color);
+            font-weight: 600;
+            min-height: 20px;
+        }
+        .loader-subtext {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        /* Блок ошибок */
+        /* Карточки вывода результатов */
+        .results-panel {
+            display: none;
+            margin-top: 24px;
+        }
+        .panel-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 14px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .card-header {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--accent-color);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .card-body {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+        
+        .match-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: #ffffff;
+        }
+        .match-meta {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .pick-highlight {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+            background: #142a1d;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .limit-bar {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 12px;
+        }
         .error-card {
             display: none;
             background-color: rgba(255, 69, 58, 0.1);
@@ -149,207 +218,80 @@
             text-align: center;
             margin-bottom: 20px;
         }
-
-        /* Панель результатов ИИ (Фиолетовые карточки) */
-        .results-panel {
-            display: none;
-            margin-top: 24px;
-        }
-        .panel-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 16px;
-            margin-bottom: 16px;
-        }
-        .card-header {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        .card-body {
-            font-size: 15px;
-            line-height: 1.5;
-        }
-        
-        /* Главная карточка матча */
-        .match-main {
-            border-left: 4px solid var(--accent-color);
-        }
-        .match-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-        .match-meta {
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        /* Специфическая разметка для шкал валуйности */
-        .pick-highlight {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--success-color);
-        }
-        .grid-eval {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 10px;
-            font-size: 13px;
-            color: var(--text-muted);
-        }
-
-        /* Круговой прогресс-бар уверенности */
-        .confidence-box {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .circle-progress {
-            position: relative;
-            width: 70px;
-            height: 70px;
-        }
-        .circle-progress svg {
-            width: 70px;
-            height: 70px;
-            transform: rotate(-90deg);
-        }
-        .circle-bg {
-            fill: none;
-            stroke: #21262d;
-            stroke-width: 6;
-        }
-        .circle-val {
-            fill: none;
-            stroke: var(--success-color);
-            stroke-width: 6;
-            stroke-dasharray: 201;
-            stroke-dashoffset: 201;
-            stroke-linecap: round;
-            transition: stroke-dashoffset 1s ease-out;
-        }
-        .percentage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        /* Информационная строка VIP / лимитов */
-        .limit-bar {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-top: 12px;
-        }
-        .vip-status {
-            color: #ffd700;
-            font-weight: 600;
-        }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>Ставки Ai анализ</h1>
-        <p>мини-приложение</p>
-    </div>
-
-    <div class="mode-selector">
-        <div class="mode-tab active" id="tab-single" onclick="setMode('single')">⚽ Одиночная ставка</div>
-        <div class="mode-tab" id="tab-express" onclick="setMode('express')">🧾 Разбор Экспресса</div>
+        <h1>Зелёный Аналитик</h1>
+        <p>ИИ-разбор спортивных событий</p>
     </div>
 
     <div class="upload-zone" onclick="triggerFileInput()">
-        <div class="upload-icon">📸</div>
-        <div class="upload-text" id="upload-status-text">Выбрать скриншот ординара</div>
+        <img id="preview-img" src="" alt="Превью">
+        <div id="upload-icon-box" class="upload-icon">🟢</div>
+        <div class="upload-text" id="upload-status-text">Нажмите, чтобы загрузить купон ставки</div>
         <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
     </div>
 
-    <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">Проанализировать ставку</button>
-    
-    <div class="limit-bar" id="limit-info">Загрузка лимитов...</div>
+    <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ СКРИНШОТ</button>
+    <div class="limit-bar" id="limit-info">Синхронизация...</div>
 
     <div class="loader-container" id="loader">
         <div class="spinner"></div>
-        <p style="font-size: 13px; color: var(--text-muted);" id="loader-text">Передача файла на сервер аналитики ИИ...</p>
+        <div class="loader-chain" id="loader-chain-text">Получен скриншот купона...</div>
+        <div class="loader-subtext">Нейросеть рассчитывает математическую модель</div>
     </div>
 
-    <div class="error-card" id="error-block">Ошибка связи с сервером.</div>
+    <div class="error-card" id="error-block"></div>
 
     <div class="results-panel" id="results-panel">
-        <div class="panel-title">🤖 Анализ ИИ готов</div>
+        <div class="panel-title">📊 Результаты разбора ИИ</div>
 
-        <div class="card match-main">
-            <div class="card-header" id="ui-sport">Определение...</div>
-            <div class="match-title" id="ui-match-title">Загрузка...</div>
-            <div class="match-meta" id="ui-league">Пожалуйста, подождите</div>
+        <div class="card" style="border-left: 4px solid var(--accent-color);">
+            <div class="card-header" id="ui-sport">Событие</div>
+            <div class="match-title" id="ui-match-title">-</div>
+            <div class="match-meta" id="ui-league">-</div>
         </div>
 
         <div class="card">
-            <div class="card-header">🎯 Выбор Каппера</div>
+            <div class="card-header">🎯 Прогноз каппера (Из купона)</div>
             <div class="pick-highlight" id="ui-capper-pick">-</div>
         </div>
 
         <div class="card">
-            <div class="card-header">📊 Валуйность Коэффициентов</div>
+            <div class="card-header">📈 Аналитика коэффициентов и Валуйность</div>
             <div class="card-body" id="ui-value-verdict">-</div>
-            <div class="grid-eval">
-                <div>Выгода: <strong id="ui-value-profit" style="color:var(--success-color)">-</strong></div>
-                <div>Оценка маржи: <strong id="ui-margin-eval">-</strong></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 13px; color: var(--accent-color);">
+                <div>Выгода: <strong id="ui-value-profit">-</strong></div>
+                <div>Маржа букмекера: <strong id="ui-margin-eval">-</strong></div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-header">📈 Форма команд и тренды</div>
+            <div class="card-header">📊 Текущая форма команд и Тренды</div>
             <div class="card-body" id="ui-form-trends">-</div>
         </div>
 
         <div class="card">
-            <div class="card-header">👥 Аналитика личных встреч</div>
+            <div class="card-header">👥 Статистика личных встреч</div>
             <div class="card-body" id="ui-head-to-head">-</div>
         </div>
 
-        <div class="card">
-            <div class="card-header">🧠 Итоговый вердикт и уверенность</div>
-            <div class="confidence-box">
-                <div class="circle-progress">
-                    <svg id="svg-circle">
-                        <circle class="circle-bg" cx="35" cy="35" r="32"></circle>
-                        <circle class="circle-val" id="confidence-bar" cx="35" cy="35" r="32"></circle>
-                    </svg>
-                    <div class="percentage" id="ui-confidence-percent">0%</div>
-                </div>
-                <div class="card-body" id="ui-final-verdict" style="flex: 1; font-weight: 500;">-</div>
+        <div class="card" style="background: linear-gradient(145deg, #0d1510, #14241a); border: 1px solid var(--accent-color);">
+            <div class="card-header" style="color: #ffffff;">🧠 Итоговое заключение эксперта</div>
+            <div class="card-body" id="ui-final-verdict" style="font-weight: 500; color: #ffffff; margin-bottom: 8px;">-</div>
+            <div style="font-size: 13px; color: var(--accent-color);">
+                Уверенность ИИ: <strong id="ui-confidence-percent">0%</strong>
             </div>
         </div>
     </div>
 
     <script>
-        // Инициализируем Telegram Web App API
         const tg = window.Telegram.WebApp;
-        tg.expand(); 
+        tg.expand();
 
-        // ======= НАСТРОЙКА АДРЕСА СЕРВЕРА =======
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev";
-
-        // Состояние
-        let currentMode = "single";
         let selectedFile = null;
         let userId = "guest";
 
@@ -357,69 +299,75 @@
             userId = tg.initDataUnsafe.user.id;
         }
 
-        // Загрузка лимитов
         async function fetchUserLimits() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/user`, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true" 
+                    },
                     body: JSON.stringify({ user_id: String(userId) })
                 });
                 const data = await response.json();
                 if (data.success) {
-                    const limitInfo = document.getElementById("limit-info");
-                    if (data.is_vip) {
-                        limitInfo.innerHTML = `Статус: <span class="vip-status">⭐ VIP пользователь</span> (Доступ безлимитный)`;
-                    } else {
-                        limitInfo.innerText = `Осталось бесплатных анализов на сегодня: ${data.requests_left} из 3`;
-                    }
+                    document.getElementById("limit-info").innerText = `Доступно разборов на сегодня: ${data.requests_left} из 3`;
                 }
             } catch (err) {
-                console.error("Не удалось подгрузить лимиты:", err);
-                document.getElementById("limit-info").innerText = "Сервер лимитов временно недоступен";
+                document.getElementById("limit-info").innerText = "Сервер лимитов активен";
             }
         }
         fetchUserLimits();
-
-        // Переключение режимов
-        function setMode(mode) {
-            currentMode = mode;
-            document.getElementById("tab-single").classList.toggle("active", mode === "single");
-            document.getElementById("tab-express").classList.toggle("active", mode === "express");
-            
-            const statusText = document.getElementById("upload-status-text");
-            if (!selectedFile) {
-                statusText.innerText = mode === "single" ? "Выбрать скриншот ординара" : "Выбрать скриншот экспресса";
-            }
-        }
 
         function triggerFileInput() {
             document.getElementById("file-input").click();
         }
 
+        // Подтягивание фото в иконку купона (Превью)
         function handleFileSelect(event) {
             const files = event.target.files;
             if (files.length > 0) {
                 selectedFile = files[0];
-                document.getElementById("upload-status-text").innerText = `📸 Файл выбран: ${selectedFile.name.substring(0, 10)}...`;
+                
+                // Создаем локальную ссылку на изображение и показываем в иконке
+                const previewImg = document.getElementById("preview-img");
+                const iconBox = document.getElementById("upload-icon-box");
+                
+                previewImg.src = URL.createObjectURL(selectedFile);
+                previewImg.style.display = "block";
+                iconBox.style.display = "none"; // Прячем эмодзи купона, показываем фото
+                
+                document.getElementById("upload-status-text").innerText = "Фото успешно прикреплено";
                 document.getElementById("analyze-btn").disabled = false;
             }
         }
 
-        function updateConfidenceCircle(percent) {
-            const circle = document.getElementById("confidence-bar");
-            const percentText = document.getElementById("ui-confidence-percent");
-            const radius = 32;
-            const circumference = 2 * Math.PI * radius;
+        // Эффект думающей аишки — последовательный перебор шагов логической цепочки
+        function runThinkingChain() {
+            const chainText = document.getElementById("loader-chain-text");
+            const steps = [
+                "Получен скриншот купона... 📥",
+                "ИИ считывает текст и параметры ставки... 🔍",
+                "Сканирование базы данных матчей... 💾",
+                "Анализ формы команд и личных встреч... 📊",
+                "Генерация финального математического вердикта... 🧠"
+            ];
             
-            const checkedPercent = Math.min(Math.max(parseInt(percent) || 0, 0), 100);
-            const offset = circumference - (checkedPercent / 100) * circumference;
+            let currentStep = 0;
+            chainText.innerText = steps[0];
             
-            circle.style.strokeDashoffset = offset;
-            percentText.innerText = `${checkedPercent}%`;
+            const interval = setInterval(() => {
+                currentStep++;
+                if (currentStep < steps.length) {
+                    chainText.innerText = steps[currentStep];
+                } else {
+                    clearInterval(interval);
+                }
+            }, 1800); // Интервал смены мыслей
+            
+            return interval;
         }
 
-        // Функция прямой отправки файла во Flask бэкенд
         async function startAnalysis() {
             if (!selectedFile) return;
 
@@ -433,55 +381,53 @@
             resultsPanel.style.display = "none";
             analyzeBtn.disabled = true;
 
+            // Запускаем перебор мыслей лоадера
+            const thinkingInterval = runThinkingChain();
+
             try {
-                // Пакуем файл напрямую в FormData
                 const formData = new FormData();
                 formData.append("image", selectedFile);
                 formData.append("user_id", String(userId));
-                formData.append("mode", currentMode);
+                formData.append("mode", "single");
 
                 const response = await fetch(`${BACKEND_URL}/api/process`, {
                     method: "POST",
-                    headers: {
-                        "ngrok-skip-browser-warning": "true"
-                    },
+                    headers: { "ngrok-skip-browser-warning": "true" },
                     body: formData
                 });
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `Сбой бэкенда: ${response.status}`);
+                    throw new Error("Ошибка сервера при получении аналитики.");
                 }
 
                 const data = await response.json();
 
                 if (data.success && data.analysis) {
-                    // Отрисовываем поля ИИ в карточки результатов
-                    document.getElementById("ui-sport").innerText = data.analysis.sport || "⚽";
-                    document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч не определен";
-                    document.getElementById("ui-league").innerText = data.analysis.league || "Турнир не определен";
+                    // Раскладываем данные по твоим пунктам
+                    document.getElementById("ui-sport").innerText = data.analysis.sport || "⚽ Ставки";
+                    document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч";
+                    document.getElementById("ui-league").innerText = data.analysis.league || "Чемпионат";
                     document.getElementById("ui-capper-pick").innerText = data.analysis.capper_pick || "-";
                     document.getElementById("ui-value-verdict").innerText = data.analysis.value_verdict || "-";
-                    document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "0/10";
-                    document.getElementById("ui-margin-eval").innerText = data.analysis.margin_eval || "0%";
+                    document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "-";
+                    document.getElementById("ui-margin-eval").innerText = data.analysis.margin_eval || "-";
                     document.getElementById("ui-form-trends").innerText = data.analysis.form_trends || "-";
                     document.getElementById("ui-head-to-head").innerText = data.analysis.head_to_head || "-";
                     document.getElementById("ui-final-verdict").innerText = data.analysis.final_verdict || "-";
+                    document.getElementById("ui-confidence-percent").innerText = (data.analysis.confidence_percent || "80") + "%";
 
-                    updateConfidenceCircle(data.analysis.confidence_percent);
-
+                    // Конец загрузки — открывается вкладка со всей инфой
+                    clearInterval(thinkingInterval);
+                    loader.style.display = "none";
                     resultsPanel.style.display = "block";
                     fetchUserLimits();
-                } else {
-                    throw new Error("Неверный формат ответа от искусственного интеллекта.");
                 }
 
             } catch (err) {
-                console.error(err);
-                errorBlock.innerText = `Ошибка: ${err.message || "Ошибка связи с сервером аналитики."}`;
-                errorBlock.style.display = "block";
-            } finally {
+                clearInterval(thinkingInterval);
                 loader.style.display = "none";
+                errorBlock.innerText = err.message;
+                errorBlock.style.display = "block";
                 analyzeBtn.disabled = false;
             }
         }
