@@ -117,7 +117,7 @@
         tg.ready();
         tg.expand(); 
 
-        // Ссылка от ngrok, скопированная из консоли твоего сервера Hostman
+        // Актуальная ссылка от ngrok
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev"; 
 
         // Получаем уникальный Telegram ID пользователя
@@ -135,10 +135,17 @@
             const btn = document.getElementById("submit-btn");
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/user?user_id=${userId}`);
+                // Добавлен заголовок для обхода предупреждения ngrok
+                const response = await fetch(`${BACKEND_URL}/api/user?user_id=${userId}`, {
+                    method: "GET",
+                    headers: {
+                        "ngrok-skip-browser-warning": "true"
+                    }
+                });
                 const data = await response.json();
 
                 if (data.success) {
+                    counterElement.style.color = "#00ff88";
                     counterElement.innerText = `Доступно запросов на сегодня: ${data.requests_left} из 3`;
                     
                     if (data.requests_left === 0) {
@@ -173,10 +180,12 @@
             btn.innerText = "Анализ данных ИИ...";
 
             try {
+                // Добавлен заголовок для обхода предупреждения ngrok
                 const response = await fetch(`${BACKEND_URL}/api/process`, {
                     method: "POST",
                     headers: {
-                        "Content-Type": "application/json"
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true"
                     },
                     body: JSON.stringify({
                         user_id: userId,
@@ -197,7 +206,6 @@
                     resultBlock.style.display = "block";
                     resultBlock.innerText = data.result;
 
-                    // Обновляем счетчик на экране новым значением из бэкенда
                     counterElement.innerText = `Доступно запросов на сегодня: ${data.requests_left} из 3`;
                     
                     if (data.requests_left === 0) {
@@ -213,7 +221,7 @@
                 }
             } catch (error) {
                 console.error(error);
-                alert("Не удалось отправить данные на server.");
+                alert("Не удалось отправить данные на сервер.");
                 btn.disabled = false;
                 btn.innerText = "Обработать данные ИИ";
             }
