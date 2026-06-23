@@ -255,7 +255,7 @@
         </div>
 
         <div class="card">
-            <div class="card-header">🎯 Прогноз каппера (Из купона)</div>
+            <div class="card-header">🎯 Прогноз капнера (Из купона)</div>
             <div class="pick-highlight" id="ui-capper-pick">-</div>
         </div>
 
@@ -291,7 +291,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
+        // ======= ССЫЛКА НА ТВОЙ СЕРВЕР =======
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev";
+        
         let selectedFile = null;
         let userId = "guest";
 
@@ -301,7 +303,7 @@
 
         async function fetchUserLimits() {
             try {
-                const response = await fetch(`${BACKEND_URL}/api/user`, {
+                const response = await fetch(`${BACKEND_URL}/api/user/`, {
                     method: "POST",
                     headers: { 
                         "Content-Type": "application/json",
@@ -329,13 +331,12 @@
             if (files.length > 0) {
                 selectedFile = files[0];
                 
-                // Создаем локальную ссылку на изображение и показываем в иконке
                 const previewImg = document.getElementById("preview-img");
                 const iconBox = document.getElementById("upload-icon-box");
                 
                 previewImg.src = URL.createObjectURL(selectedFile);
                 previewImg.style.display = "block";
-                iconBox.style.display = "none"; // Прячем эмодзи купона, показываем фото
+                iconBox.style.display = "none"; 
                 
                 document.getElementById("upload-status-text").innerText = "Фото успешно прикреплено";
                 document.getElementById("analyze-btn").disabled = false;
@@ -363,11 +364,12 @@
                 } else {
                     clearInterval(interval);
                 }
-            }, 1800); // Интервал смены мыслей
+            }, 1800); 
             
             return interval;
         }
 
+        // Функция перевода картинки в текст (Base64) и отправки чистого JSON текста
         async function startAnalysis() {
             if (!selectedFile) return;
 
@@ -381,55 +383,71 @@
             resultsPanel.style.display = "none";
             analyzeBtn.disabled = true;
 
-            // Запускаем перебор мыслей лоадера
             const thinkingInterval = runThinkingChain();
 
-            try {
-                const formData = new FormData();
-                formData.append("image", selectedFile);
-                formData.append("user_id", String(userId));
-                formData.append("mode", "single");
+            // Читаем файл как Base64 строку
+            const reader = new FileReader();
+            reader.readAsDataURL(selectedFile);
+            reader.onload = async function () {
+                const base64String = reader.result;
 
-                const response = await fetch(`${BACKEND_URL}/api/process`, {
-                    method: "POST",
-                    headers: { "ngrok-skip-browser-warning": "true" },
-                    body: formData
-                });
+                try {
+                    // Отправляем строго текстовый JSON, защищенный от сетевых сбоев
+                    const response = await fetch(`${BACKEND_URL}/api/process/`, {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json",
+                            "ngrok-skip-browser-warning": "true"
+                        },
+                        body: JSON.stringify({
+                            user_id: String(userId),
+                            mode: "single",
+                            image_base64: base64String
+                        })
+                    });
 
-                if (!response.ok) {
-                    throw new Error("Ошибка сервера при получении аналитики.");
-                }
+                    if (!response.ok) {
+                        throw new Error("Сервер вернул ошибку при обработке JSON.");
+                    }
 
-                const data = await response.json();
+                    const data = await response.json();
 
-                if (data.success && data.analysis) {
-                    // Раскладываем данные по твоим пунктам
-                    document.getElementById("ui-sport").innerText = data.analysis.sport || "⚽ Ставки";
-                    document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч";
-                    document.getElementById("ui-league").innerText = data.analysis.league || "Чемпионат";
-                    document.getElementById("ui-capper-pick").innerText = data.analysis.capper_pick || "-";
-                    document.getElementById("ui-value-verdict").innerText = data.analysis.value_verdict || "-";
-                    document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "-";
-                    document.getElementById("ui-margin-eval").innerText = data.analysis.margin_eval || "-";
-                    document.getElementById("ui-form-trends").innerText = data.analysis.form_trends || "-";
-                    document.getElementById("ui-head-to-head").innerText = data.analysis.head_to_head || "-";
-                    document.getElementById("ui-final-verdict").innerText = data.analysis.final_verdict || "-";
-                    document.getElementById("ui-confidence-percent").innerText = (data.analysis.confidence_percent || "80") + "%";
+                    if (data.success && data.analysis) {
+                        // Раскладываем данные по твоим пунктам
+                        document.getElementById("ui-sport").innerText = data.analysis.sport || "⚽ Ставки";
+                        document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч";
+                        document.getElementById("ui-league").innerText = data.analysis.league || "Чемпионат";
+                        document.getElementById("ui-capper-pick").innerText = data.analysis.capper_pick || "-";
+                        document.getElementById("ui-value-verdict").innerText = data.analysis.value_verdict || "-";
+                        document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "-";
+                        document.getElementById("ui-margin-eval").innerText = data.analysis.margin_eval || "-";
+                        document.getElementById("ui-form-trends").innerText = data.analysis.form_trends || "-";
+                        document.getElementById("ui-head-to-head").innerText = data.analysis.head_to_head || "-";
+                        document.getElementById("ui-final-verdict").innerText = data.analysis.final_verdict || "-";
+                        document.getElementById("ui-confidence-percent").innerText = (data.analysis.confidence_percent || "80") + "%";
 
-                    // Конец загрузки — открывается вкладка со всей инфой
+                        clearInterval(thinkingInterval);
+                        loader.style.display = "none";
+                        resultsPanel.style.display = "block";
+                        fetchUserLimits();
+                    }
+
+                } catch (err) {
                     clearInterval(thinkingInterval);
                     loader.style.display = "none";
-                    resultsPanel.style.display = "block";
-                    fetchUserLimits();
+                    errorBlock.innerText = "Ошибка: " + err.message;
+                    errorBlock.style.display = "block";
+                    analyzeBtn.disabled = false;
                 }
-
-            } catch (err) {
+            };
+            
+            reader.onerror = function (error) {
                 clearInterval(thinkingInterval);
                 loader.style.display = "none";
-                errorBlock.innerText = err.message;
+                errorBlock.innerText = "Ошибка чтения файла на телефоне.";
                 errorBlock.style.display = "block";
                 analyzeBtn.disabled = false;
-            }
+            };
         }
     </script>
 </body>
