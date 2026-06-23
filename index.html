@@ -16,7 +16,8 @@
             --border-color: #1b2d22;
             --success-color: #00ff66;
             --card-gradient: linear-gradient(145deg, #0d1510, #111e16);
-            --vip-color: #00f0ff; /* Неоново-голубой для VIP элементов */
+            --vip-color: #00f0ff;
+            --vip-gradient: linear-gradient(145deg, #0a1c24, #08121a);
         }
 
         body {
@@ -32,7 +33,7 @@
 
         .header {
             text-align: center;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
         .header h1 {
             font-size: 24px;
@@ -50,58 +51,105 @@
             font-weight: 500;
         }
 
-        /* --- ОБНОВЛЕННАЯ ПРЕЗЕНТАБЕЛЬНАЯ ЗОНА ЗАГРУЗКИ --- */
+        /* --- ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ СТАТУСА И VIP --- */
+        .status-widgets {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .widget {
+            background: linear-gradient(145deg, #0a100d, #0d1611);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .widget .status-dot {
+            color: var(--accent-color);
+            text-shadow: 0 0 8px var(--accent-color);
+            font-weight: 800;
+            margin-right: 4px;
+        }
+        .widget.vip-active {
+            background: var(--vip-gradient);
+            border-color: rgba(0, 240, 255, 0.25);
+            color: var(--vip-color);
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.1);
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
+        }
+
+        /* --- ПУЛЬСИРУЮЩАЯ ПРЕМИУМ ЗОНА ЗАГРУЗКИ --- */
         .upload-zone {
-            background: linear-gradient(145deg, #0f1a13, #070d09);
-            border: 2px dashed rgba(0, 255, 102, 0.3);
+            background: linear-gradient(145deg, #0e1812, #060a07);
+            border: 2px dashed rgba(0, 255, 102, 0.2);
             border-radius: 28px;
-            padding: 40px 20px;
+            padding: 36px 20px;
             text-align: center;
             cursor: pointer;
             margin-bottom: 20px;
             position: relative;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(0, 255, 102, 0.02);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+            animation: pulsing-glow 3s infinite alternate;
+        }
+        @keyframes pulsing-glow {
+            0% { border-color: rgba(0, 255, 102, 0.15); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6); }
+            100% { border-color: rgba(0, 255, 102, 0.35); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 255, 102, 0.05); }
         }
         .upload-zone:active {
-            border-color: var(--accent-color);
-            box-shadow: 0 0 25px rgba(0, 255, 102, 0.2), inset 0 0 15px rgba(0, 255, 102, 0.05);
             transform: scale(0.97);
+            border-color: var(--accent-color);
         }
         .upload-icon {
-            font-size: 54px;
-            margin-bottom: 16px;
+            font-size: 50px;
+            margin-bottom: 12px;
             display: inline-block;
-            filter: drop-shadow(0 0 12px rgba(0, 255, 102, 0.4));
-            transition: transform 0.3s ease;
-        }
-        .upload-zone:block .upload-icon {
-            transform: translateY(-4px);
+            filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.35));
         }
         .upload-text {
             font-size: 15px;
             color: var(--text-color);
             font-weight: 700;
-            line-height: 1.4;
-            letter-spacing: 0.3px;
+            margin-bottom: 14px;
+        }
+        
+        /* Теги подсказок внутри зоны */
+        .upload-hints {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .hint-tag {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 10px;
+            color: var(--text-muted);
+            font-weight: 500;
         }
         
         #preview-img {
             display: none;
-            width: 120px;
-            height: 120px;
+            width: 110px;
+            height: 110px;
             object-fit: cover;
-            border-radius: 24px;
-            margin: 0 auto 16px auto;
+            border-radius: 22px;
+            margin: 0 auto 14px auto;
             border: 2px solid var(--accent-color);
-            box-shadow: 0 0 25px rgba(0, 255, 102, 0.35);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
         }
 
-        #file-input {
-            display: none;
-        }
+        #file-input { display: none; }
 
-        /* --- ОБНОВЛЕННАЯ КНОПКА --- */
+        /* --- КНОПКА С ГРАДИЕНТОМ --- */
         .btn {
             background: linear-gradient(90deg, var(--accent-color) 0%, #00ffaa 100%);
             color: #000000;
@@ -111,15 +159,12 @@
             border-radius: 20px;
             font-size: 16px;
             font-weight: 800;
-            letter-spacing: 0.8px;
+            letter-spacing: 0.5px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 6px 20px rgba(0, 255, 102, 0.3);
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 20px rgba(0, 255, 102, 0.2);
         }
-        .btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 3px 10px rgba(0, 255, 102, 0.2);
-        }
+        .btn:active { transform: scale(0.98); }
         .btn:disabled {
             background: #142119;
             color: var(--text-muted);
@@ -127,27 +172,20 @@
             cursor: not-allowed;
         }
 
-        /* --- КРАСИВЫЙ ВИДЖЕТ ЛИМИТОВ / VIP ПАНЕЛЬ --- */
-        .limit-bar {
-            text-align: center;
-            font-size: 13px;
-            color: var(--text-main);
-            background: rgba(27, 45, 34, 0.2);
+        /* Кнопка быстрого возврата к кэшированному анализу матча */
+        .btn-quick-access {
+            display: none;
+            background: rgba(255,255,255,0.02);
             border: 1px solid var(--border-color);
-            padding: 10px 16px;
-            border-radius: 14px;
-            margin-top: 18px;
+            color: #cbd5e1;
+            font-size: 13px;
             font-weight: 600;
-            display: inline-block;
+            padding: 12px;
+            border-radius: 14px;
             width: 100%;
-            box-sizing: border-box;
-        }
-        .limit-bar.vip-active {
-            color: var(--vip-color);
-            border-color: rgba(0, 240, 255, 0.25);
-            background: rgba(0, 240, 255, 0.05);
-            text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-            font-weight: 700;
+            margin-top: 12px;
+            cursor: pointer;
+            text-align: center;
         }
 
         /* --- ИНТЕРАКТИВНЫЙ ИИ-ЛОАДЕР --- */
@@ -193,9 +231,7 @@
             font-weight: 700;
             transform: translateX(4px);
         }
-        .step-item.done {
-            color: #4a7556;
-        }
+        .step-item.done { color: #4a7556; }
         .step-dot {
             width: 6px;
             height: 6px;
@@ -206,19 +242,14 @@
             background-color: var(--accent-color);
             box-shadow: 0 0 8px var(--accent-color);
         }
-        .step-item.done .step-dot {
-            background-color: #4a7556;
-        }
+        .step-item.done .step-dot { background-color: #4a7556; }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* --- КАРТОЧКИ РЕЗУЛЬТАТОВ --- */
         .results-panel {
             display: none;
-            margin-top: 28px;
+            margin-top: 24px;
             animation: fadeIn 0.4s ease;
         }
         @keyframes fadeIn {
@@ -226,9 +257,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .panel-title {
-            font-size: 18px;
+            font-size: 17px;
             font-weight: 800;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             color: var(--accent-color);
             text-transform: uppercase;
             letter-spacing: 0.5px;
@@ -248,21 +279,16 @@
             color: var(--text-muted);
             margin-bottom: 8px;
             font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
         .card-body {
             font-size: 14px;
             line-height: 1.55;
             color: #e2e8f0;
         }
-        
         .match-title {
             font-size: 19px;
             font-weight: 800;
             margin-bottom: 6px;
-            color: #ffffff;
         }
         .match-meta {
             font-size: 13px;
@@ -272,13 +298,11 @@
         .pick-highlight {
             font-size: 16px;
             font-weight: 700;
-            color: #ffffff;
-            background: rgba(0, 255, 102, 0.06);
+            background: rgba(0, 255, 102, 0.05);
             padding: 12px;
             border-radius: 12px;
             border-left: 4px solid var(--accent-color);
         }
-
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -297,28 +321,12 @@
             font-size: 11px;
             color: var(--text-muted);
             margin-bottom: 2px;
-            text-transform: uppercase;
         }
-        .stat-badge strong {
-            font-size: 15px;
-            color: #ffffff;
-        }
+        .stat-badge strong { font-size: 15px; color: #ffffff; }
 
-        .confidence-box {
-            margin-top: 12px;
-        }
-        .confidence-label {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            margin-bottom: 6px;
-        }
-        .confidence-track {
-            height: 6px;
-            background: #16241c;
-            border-radius: 4px;
-            overflow: hidden;
-        }
+        .confidence-box { margin-top: 12px; }
+        .confidence-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
+        .confidence-track { height: 6px; background: #16241c; border-radius: 4px; overflow: hidden; }
         .confidence-bar {
             height: 100%;
             background: linear-gradient(90deg, #00cc52, var(--accent-color));
@@ -337,7 +345,6 @@
             font-size: 14px;
             text-align: center;
             margin-bottom: 20px;
-            font-weight: 500;
         }
     </style>
 </head>
@@ -348,26 +355,35 @@
         <p>Нейросетевой разбор спортивных купонов</p>
     </div>
 
+    <div class="status-widgets">
+        <div class="widget"><span class="status-dot">●</span> ИИ: GPT-4o-mini</div>
+        <div class="widget" id="limit-info">Загрузка лимитов...</div>
+    </div>
+
     <div class="upload-zone" onclick="triggerFileInput()">
         <img id="preview-img" src="" alt="Превью">
         <div id="upload-icon-box" class="upload-icon">📸</div>
-        <div class="upload-text" id="upload-status-text">Нажмите, чтобы загрузить купон ставки</div>
+        <div class="upload-text" id="upload-status-text">Нажмите для загрузки купона</div>
+        <div class="upload-hints" id="upload-hints-box">
+            <span class="hint-tag">📱 Скриншот БК</span>
+            <span class="hint-tag">📊 Коэффициент</span>
+            <span class="hint-tag">⚽ Обе команды</span>
+        </div>
         <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
     </div>
 
     <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ С КЛЮЧОМ AI</button>
-    <div class="limit-bar" id="limit-info">Синхронизация шлюза...</div>
+    
+    <button class="btn-quick-access" id="quick-access-btn" onclick="showCachedResults()">⚽ Посмотреть прошлый разбор матча</button>
 
     <div class="loader-container" id="loader">
-        <div class="spinner-box">
-            <div class="spinner"></div>
-        </div>
+        <div class="spinner-box"><div class="spinner"></div></div>
         <div class="loader-steps">
-            <div class="step-item" id="step-0"><div class="step-dot"></div>Оптимизация веса файла...</div>
-            <div class="step-item" id="step-1"><div class="step-dot"></div>Считывание текста купона...</div>
+            <div class="step-item" id="step-0"><div class="step-dot"></div>Оптимизация файла купона...</div>
+            <div class="step-item" id="step-1"><div class="step-dot"></div>Считывание котировок БК...</div>
             <div class="step-item" id="step-2"><div class="step-dot"></div>Анализ трендов и формы команд...</div>
-            <div class="step-item" id="step-3"><div class="step-dot"></div>Калибровка валуйности...</div>
-            <div class="step-item" id="step-4"><div class="step-dot"></div>Формирование ИИ-вердикта...</div>
+            <div class="step-item" id="step-3"><div class="step-dot"></div>Калибровка скрытого валуя...</div>
+            <div class="step-item" id="step-4"><div class="step-dot"></div>Формирование xG-вердикта...</div>
         </div>
     </div>
 
@@ -441,7 +457,6 @@
             userId = tg.initDataUnsafe.user.id;
         }
 
-        // --- УЛУЧШЕННАЯ ПРОВЕРКА VIP И ЛИМИТОВ ---
         async function fetchUserLimits() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/user/`, {
@@ -453,20 +468,19 @@
                     body: JSON.stringify({ user_id: String(userId) })
                 });
                 const data = await response.json();
-                const limitInfoBlock = document.getElementById("limit-info");
+                const limitWidget = document.getElementById("limit-info");
 
                 if (data.success) {
-                    // Если бэкенд подтвердил VIP статус
                     if (data.is_vip === true) {
-                        limitInfoBlock.innerText = "✨ VIP-доступ: Безлимитные разборы";
-                        limitInfoBlock.classList.add("vip-active");
+                        limitWidget.innerText = "👑 PREMIUM VIP";
+                        limitWidget.className = "widget vip-active";
                     } else {
-                        limitInfoBlock.innerText = `Доступно ИИ-разборов сегодня: ${data.requests_left} из 3`;
-                        limitInfoBlock.classList.remove("vip-active");
+                        limitWidget.innerText = `Лимиты: ${data.requests_left} / 3`;
+                        limitWidget.className = "widget";
                     }
                 }
             } catch (err) {
-                document.getElementById("limit-info").innerText = "Шлюз AI активен";
+                document.getElementById("limit-info").innerText = "Лимиты: Активны";
             }
         }
         fetchUserLimits();
@@ -481,11 +495,11 @@
                 selectedFile = files[0];
                 
                 const previewImg = document.getElementById("preview-img");
-                const iconBox = document.getElementById("upload-icon-box");
+                document.getElementById("upload-icon-box").style.display = "none"; 
+                document.getElementById("upload-hints-box").style.display = "none"; 
                 
                 previewImg.src = URL.createObjectURL(selectedFile);
                 previewImg.style.display = "block";
-                iconBox.style.display = "none"; 
                 
                 document.getElementById("upload-status-text").innerText = "Купон успешно добавлен";
                 document.getElementById("analyze-btn").disabled = false;
@@ -500,7 +514,6 @@
                 document.getElementById("step-3"),
                 document.getElementById("step-4")
             ];
-
             steps.forEach(s => s.className = "step-item");
             steps[0].className = "step-item active";
 
@@ -514,7 +527,6 @@
                     clearInterval(interval);
                 }
             }, 2000);
-
             return interval;
         }
 
@@ -527,29 +539,13 @@
                     img.src = event.target.result;
                     img.onload = function () {
                         const canvas = document.createElement("canvas");
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                            if (width > maxWidth) {
-                                height *= maxWidth / width;
-                                width = maxWidth;
-                            }
-                        } else {
-                            if (height > maxHeight) {
-                                width *= maxHeight / height;
-                                height = maxHeight;
-                            }
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
+                        let width = img.width; let height = img.height;
+                        if (width > height) { if (width > maxWidth) { height *= maxWidth / width; width = maxWidth; } } 
+                        else { if (height > maxHeight) { width *= maxHeight / height; height = maxHeight; } }
+                        canvas.width = width; canvas.height = height;
                         const ctx = canvas.getContext("2d");
                         ctx.drawImage(img, 0, 0, width, height);
-
-                        canvas.toBlob((blob) => {
-                            resolve(blob);
-                        }, "image/png", quality);
+                        canvas.toBlob((blob) => { resolve(blob); }, "image/png", quality);
                     };
                 };
                 reader.onerror = (err) => reject(err);
@@ -585,39 +581,20 @@
                     body: formData
                 });
 
-                if (!response.ok) {
-                    throw new Error("Сервер не смог вернуть аналитику по купону.");
-                }
-
+                if (!response.ok) throw new Error("Сервер не вернул ответ.");
                 const data = await response.json();
 
                 if (data.success && data.analysis) {
-                    document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч";
-                    document.getElementById("ui-league").innerText = data.analysis.league || "Турнир не определен";
-                    document.getElementById("ui-capper-pick").innerText = data.analysis.capper_pick || "-";
-                    document.getElementById("ui-value-verdict").innerText = data.analysis.value_verdict || "-";
-                    document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "-";
-                    document.getElementById("ui-margin-eval").innerText = data.analysis.margin_eval || "-";
-                    document.getElementById("ui-form-trends").innerText = data.analysis.form_trends || "-";
-                    document.getElementById("ui-head-to-head").innerText = data.analysis.head_to_head || "-";
-                    document.getElementById("ui-final-verdict").innerText = data.analysis.final_verdict || "-";
-                    
-                    const conf = data.analysis.confidence_percent || 75;
-                    document.getElementById("ui-confidence-percent").innerText = conf + "%";
+                    renderUI(data.analysis);
+                    localStorage.setItem('last_match_cache', JSON.stringify(data.analysis));
                     
                     clearInterval(stepsInterval);
                     loader.style.display = "none";
                     resultsPanel.style.display = "block";
-
-                    setTimeout(() => {
-                        document.getElementById("ui-confidence-bar").style.width = conf + "%";
-                    }, 100);
-
-                    fetchUserLimits();
+                    checkQuickAccessBtn();
                 } else {
                     throw new Error(data.error || "Ошибка генерации разбора.");
                 }
-
             } catch (err) {
                 clearInterval(stepsInterval);
                 loader.style.display = "none";
@@ -626,6 +603,40 @@
                 analyzeBtn.disabled = false;
             }
         }
+
+        function renderUI(analysis) {
+            document.getElementById("ui-match-title").innerText = analysis.match_title || "Матч";
+            document.getElementById("ui-league").innerText = analysis.league || "Турнир не определен";
+            document.getElementById("ui-capper-pick").innerText = analysis.capper_pick || "-";
+            document.getElementById("ui-value-verdict").innerText = analysis.value_verdict || "-";
+            document.getElementById("ui-value-profit").innerText = analysis.value_profit || "-";
+            document.getElementById("ui-margin-eval").innerText = analysis.margin_eval || "-";
+            document.getElementById("ui-form-trends").innerText = analysis.form_trends || "-";
+            document.getElementById("ui-head-to-head").innerText = analysis.head_to_head || "-";
+            document.getElementById("ui-final-verdict").innerText = analysis.final_verdict || "-";
+            
+            const conf = analysis.confidence_percent || 75;
+            document.getElementById("ui-confidence-percent").innerText = conf + "%";
+            setTimeout(() => {
+                document.getElementById("ui-confidence-bar").style.width = conf + "%";
+            }, 100);
+        }
+
+        function showCachedResults() {
+            const cache = localStorage.getItem('last_match_cache');
+            if (cache) {
+                renderUI(JSON.parse(cache));
+                document.getElementById("results-panel").style.display = "block";
+                document.getElementById("results-panel").scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function checkQuickAccessBtn() {
+            if (localStorage.getItem('last_match_cache')) {
+                document.getElementById("quick-access-btn").style.display = "block";
+            }
+        }
+        window.addEventListener('DOMContentLoaded', checkQuickAccessBtn);
     </script>
 </body>
 </html>
