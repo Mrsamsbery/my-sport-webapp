@@ -104,7 +104,6 @@
             padding: 12px;
             border-radius: 12px;
             border: 1px solid #1e2636;
-            word-break: break-all;
         }
 
         .counter-box span {
@@ -416,7 +415,6 @@
         async function loadLimits() {
             const counterBox = document.getElementById("limits-counter");
             try {
-                // Строгий POST запрос для обхода заглушек ngrok
                 const response = await fetch(`${BACKEND_URL}/api/user`, {
                     method: "POST",
                     headers: { 
@@ -427,7 +425,7 @@
                 });
                 
                 if (!response.ok) {
-                    counterBox.innerText = `Ошибка сервера: Статус ${response.status}`;
+                    counterBox.innerText = `Ошибка связи с сервером.`;
                     return;
                 }
 
@@ -439,12 +437,9 @@
                     } else {
                         counterBox.innerHTML = `Осталось бесплатных прогнозов: <span id="req-left">${data.requests_left}</span>`;
                     }
-                } else {
-                    counterBox.innerText = `Ошибка БД: ${data.error}`;
                 }
             } catch (e) {
-                // Если ngrok выключен или адрес неверный, выведется "Сбой сети: Failed to fetch"
-                counterBox.innerText = `Сбой сети: ${e.message}`;
+                counterBox.innerText = `Ошибка связи с сервером.`;
             }
         }
 
