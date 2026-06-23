@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ставки Ai анализ</title>
     <style>
-        /* Идеальная цветовая гамма по скриншоту */
         :root {
             --bg-dark: #090d0a; 
             --card-bg: #111612; 
@@ -63,7 +62,6 @@
             gap: 8px;
         }
 
-        /* КАРТОЧКИ ИНТЕРФЕЙСА */
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -170,7 +168,6 @@
             transition: width 0.6s ease-in-out;
         }
 
-        /* ЭКРАН ЗАГРУЗКИ ТИПА SKELETON/LOAF */
         #loading_screen {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -195,32 +192,31 @@
             margin-bottom: 16px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
 
-    <div id="loading_screen" style="display: none;">
+    <div id="loading_screen">
         <div class="spinner"></div>
-        <div>Математическая ИИ-симуляция матча...</div>
+        <div>Получение аналитики ИИ...</div>
     </div>
 
     <div class="card">
         <div class="card-meta">📌 СОБЫТИЕ И ТУРНИР</div>
-        <div class="match-title" id="match_title">Ожидание загрузки...</div>
-        <div class="league-title" id="league">Загрузите скриншот купона ставки</div>
+        <div class="match-title" id="match_title">Загрузка...</div>
+        <div class="league-title" id="league">Синхронизация с сервером</div>
     </div>
 
     <div class="card">
         <div class="card-meta">🎯 МАТЕМАТИЧЕСКИЙ ИТОГ МОДЕЛИ</div>
-        <div class="main-pick-box" id="capper_pick">Исход не определен</div>
+        <div class="main-pick-box" id="capper_pick">—</div>
     </div>
 
     <div class="card">
         <div class="card-meta">📈 ОЦЕНКА ВАЛУЙНОСТИ (VALUE)</div>
-        <div class="section-text" id="value_verdict">Здесь отобразится математический перевес над линией букмекера.</div>
+        <div class="section-text" id="value_verdict">—</div>
         
         <div class="value-grid">
             <div class="value-sub-box">
@@ -236,17 +232,17 @@
 
     <div class="card">
         <div class="card-meta">📊 ТРЕНДЫ И СОСТОЯНИЕ КОМАНД</div>
-        <div class="section-text" id="form_trends">Статистика последних 5 встреч, xG-метрики и кадровые новости.</div>
+        <div class="section-text" id="form_trends">—</div>
     </div>
 
     <div class="card">
         <div class="card-meta">👥 ИСТОРИЯ ОЧНЫХ ПРОТИВОСТОЯНИЙ</div>
-        <div class="section-text" id="head_to_head">Стилистический разбор тактики и очных встреч команд.</div>
+        <div class="section-text" id="head_to_head">—</div>
     </div>
 
     <div class="card">
         <div class="card-meta">🧠 РАСШИРЕННЫЙ МАТЕМАТИЧЕСКИЙ АНАЛИЗ</div>
-        <div class="section-text" id="final_verdict">Пошаговое моделирование сценариев поединка от ИИ.</div>
+        <div class="section-text" id="final_verdict">—</div>
         
         <div class="confidence-row">
             <span>Уверенность модели:</span>
@@ -266,46 +262,58 @@
     <script>
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev";
 
-        // Функция автоматической отправки картинки (вызывай её из родительского интерфейса Mini App)
-        async function analyzeCoupon(imageFile, userId = "guest", mode = "single") {
-            const loadingScreen = document.getElementById('loading_screen');
-            loadingScreen.style.display = 'flex'; // Показываем экран загрузки
-
-            const formData = new FormData();
-            formData.append('image', imageFile);
-            formData.append('user_id', userId);
-            formData.append('mode', mode);
+        // Функция автоматического запроса данных при старте WebApp
+        async function loadLastAnalysis() {
+            let userId = "373873346"; // Твой ID по умолчанию для тестов
+            
+            // Если открыто внутри Телеграма, забираем реальный ID юзера
+            if (window.Telegram && Telegram.WebApp && Telegram.WebApp.initDataUnsafe && Telegram.WebApp.initDataUnsafe.user) {
+                userId = Telegram.WebApp.initDataUnsafe.user.id.toString();
+                Telegram.WebApp.expand(); // Раскрываем во весь экран
+            }
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/process/`, {
+                // Стучимся на эндпоинт получения данных пользователя
+                const response = await fetch(`${BACKEND_URL}/api/user/`, {
                     method: 'POST',
-                    body: formData,
                     headers: {
+                        'Content-Type': 'application/json',
                         'ngrok-skip-browser-warning': 'true'
-                    }
+                    },
+                    body: JSON.stringify({ user_id: userId })
                 });
 
                 const data = await response.json();
                 
-                if (data.success && data.analysis) {
-                    updateUI(data.analysis);
-                    // Сохраняем в кэш для стабильности
-                    localStorage.setItem('last_analysis', JSON.stringify(data.analysis));
+                // Проверяем, прилетел ли кэш анализа
+                if (data.success && data.last_analysis) {
+                    updateUI(data.last_analysis);
+                } else if (localStorage.getItem('last_analysis')) {
+                    // Если сервер не ответил, но в памяти телефона есть старый кэш — берем его
+                    updateUI(JSON.parse(localStorage.getItem('last_analysis')));
                 } else {
-                    alert("Ошибка анализа: " + (data.error || "Неизвестный сбой сервера"));
+                    document.getElementById('loading_screen').style.display = 'none';
+                    document.getElementById('match_title').innerText = "Анализ не найден";
+                    document.getElementById('league').innerText = "Отправьте боту скриншот, чтобы начать";
                 }
             } catch (error) {
-                console.error("Сбой fetch-запроса:", error);
-                alert("Не удалось связаться с сервером аналитики.");
-            } finally {
-                loadingScreen.style.display = 'none'; // Убираем экран загрузки
+                console.error("Ошибка автозагрузки:", error);
+                // Запасной вариант из локального хранилища
+                const cached = localStorage.getItem('last_analysis');
+                if(cached) {
+                    updateUI(JSON.parse(cached));
+                } else {
+                    document.getElementById('loading_screen').style.display = 'none';
+                    alert("Не удалось загрузить данные с сервера.");
+                }
             }
         }
 
-        // Обновление всех элементов вёрстки по ключам JSON
+        // Заполнение элементов вёрстки данными из JSON
         function updateUI(analysisData) {
             if(!analysisData) return;
             
+            // Прячем спиннер загрузки
             document.getElementById('loading_screen').style.display = 'none';
 
             if(analysisData.match_title) document.getElementById('match_title').innerText = analysisData.match_title;
@@ -333,13 +341,8 @@
             }
         }
 
-        // Авто-подхват данных при обновлении экрана пользователем
-        window.addEventListener('DOMContentLoaded', () => {
-            const cachedData = localStorage.getItem('last_analysis');
-            if(cachedData) {
-                try { updateUI(JSON.parse(cachedData)); } catch(e) {}
-            }
-        });
+        // Запуск авто-запроса сразу при открытии страницы
+        window.addEventListener('DOMContentLoaded', loadLastAnalysis);
     </script>
 </body>
 </html>
