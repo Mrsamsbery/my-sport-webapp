@@ -50,7 +50,6 @@
             border: 1px solid #2e394e;
         }
 
-        /* Область выбора скриншота */
         .upload-zone {
             background-color: #131924;
             border: 2px dashed #2c374e;
@@ -86,7 +85,6 @@
             color: #a0aec0;
         }
 
-        /* Стиль для превью загруженного скриншота */
         .preview-img {
             max-width: 100%;
             max-height: 180px;
@@ -331,8 +329,6 @@
 
             const objectUrl = URL.createObjectURL(rawFile);
             const container = document.getElementById("upload-inner");
-            
-            // Вывод самого скриншота на экран
             container.innerHTML = `<img src="${objectUrl}" class="preview-img" alt="Скриншот купона">`;
 
             const btn = document.getElementById("action-button");
