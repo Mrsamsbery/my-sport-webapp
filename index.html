@@ -23,7 +23,6 @@
             box-sizing: border-box;
         }
 
-        /* Вкладки переключения режимов */
         .tabs {
             display: flex;
             background-color: #161b26;
@@ -56,25 +55,45 @@
             background-color: #131924;
             border: 2px dashed #2c374e;
             border-radius: 16px;
-            padding: 30px 20px;
-            text-align: center;
+            padding: 20px;
+            min-height: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             margin-bottom: 20px;
             transition: border-color 0.2s;
+            overflow: hidden;
+            position: relative;
         }
 
         .upload-zone:hover {
             border-color: #00ff88;
         }
 
+        .upload-content {
+            text-align: center;
+            width: 100%;
+        }
+
         .upload-icon {
             font-size: 32px;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .upload-text {
             font-size: 14px;
             color: #a0aec0;
+        }
+
+        /* Стиль для превью загруженного скриншота */
+        .preview-img {
+            max-width: 100%;
+            max-height: 180px;
+            border-radius: 10px;
+            display: block;
+            object-fit: contain;
+            margin: 0 auto;
         }
 
         .counter-box {
@@ -89,7 +108,6 @@
             font-weight: bold;
         }
 
-        /* Основная кнопка действия */
         .action-btn {
             width: 100%;
             padding: 16px;
@@ -109,7 +127,6 @@
             color: #0b0e14;
         }
 
-        /* Стили вывода блоков аналитики (как на твоем скриншоте) */
         .analysis-container {
             display: none;
             margin-top: 10px;
@@ -177,7 +194,6 @@
             margin-bottom: 12px;
         }
 
-        /* Круговой индикатор уверенности */
         .verdict-block {
             display: flex;
             align-items: center;
@@ -217,8 +233,10 @@
         </div>
 
         <div class="upload-zone" onclick="document.getElementById('file-field').click()">
-            <div class="upload-icon">📸💥</div>
-            <div id="upload-label" class="upload-text">Выбрать скриншот ординара</div>
+            <div id="upload-inner" class="upload-content">
+                <div class="upload-icon">📸💥</div>
+                <div id="upload-label" class="upload-text">Выбрать скриншот ординара</div>
+            </div>
             <input type="file" id="file-field" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
         </div>
 
@@ -229,7 +247,6 @@
         </div>
 
         <div id="analysis-box" class="analysis-container">
-            
             <div class="card">
                 <span id="res-sport" class="sport-badge">Теннис 🎾</span>
                 <div id="res-match" class="match-name">---</div>
@@ -265,7 +282,6 @@
                     <div id="res-final" class="text-block" style="flex: 1; margin: 0;">---</div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -275,8 +291,10 @@
         tg.expand();
 
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev"; 
+        const IMGBB_API_KEY = "ef89d67af46ee9756225dc9ab1f4bd3b"; 
+        
         let currentMode = "single";
-        let base64Image = "";
+        let rawFile = null;
 
         function getTelegramUserId() {
             return (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : "guest";
@@ -286,10 +304,12 @@
             currentMode = mode;
             document.getElementById("tab-single").classList.toggle("active", mode === 'single');
             document.getElementById("tab-express").classList.toggle("active", mode === 'express');
-            document.getElementById("upload-label").innerText = mode === 'single' ? "Выбрать скриншот ординара" : "Выбрать скриншот экспресса";
+            
+            if (!rawFile) {
+                document.getElementById("upload-label").innerText = mode === 'single' ? "Выбрать скриншот ординара" : "Выбрать скриншот экспресса";
+            }
         }
 
-        // Загрузка лимитов при открытии
         async function loadLimits() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/user?user_id=${getTelegramUserId()}`, {
@@ -301,33 +321,58 @@
                     document.getElementById("req-left").innerText = data.requests_left === 999 ? "∞ (Безлимит)" : `${data.requests_left}`;
                 }
             } catch (e) {
-                document.getElementById("req-left").innerText = "ошибка подключения";
+                document.getElementById("req-left").innerText = "ошибка";
             }
         }
 
-        // Обработка выбора файла и конвертация в Base64
         function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) return;
+            rawFile = event.target.files[0];
+            if (!rawFile) return;
 
-            document.getElementById("upload-label").innerText = `Выбран файл: ${file.name}`;
+            const objectUrl = URL.createObjectURL(rawFile);
+            const container = document.getElementById("upload-inner");
             
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                base64Image = e.target.result;
-                const btn = document.getElementById("action-button");
-                btn.removeAttribute("disabled");
-                btn.classList.add("ready");
-            };
-            reader.readAsDataURL(file);
+            // Вывод самого скриншота на экран
+            container.innerHTML = `<img src="${objectUrl}" class="preview-img" alt="Скриншот купона">`;
+
+            const btn = document.getElementById("action-button");
+            btn.removeAttribute("disabled");
+            btn.classList.add("ready");
         }
 
-        // Отправка скриншота на OCR и Анализ
         async function sendToOcrAndAnalysis() {
             const btn = document.getElementById("action-button");
             btn.setAttribute("disabled", "true");
-            btn.innerText = "Обработка купона ИИ...";
+            btn.innerText = "Загрузка скриншота...";
 
+            let shortImageUrl = "";
+
+            try {
+                let formData = new FormData();
+                formData.append("image", rawFile);
+
+                const imgbbResponse = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: "POST",
+                    body: formData
+                });
+                const imgbbData = await imgbbResponse.json();
+                
+                if (imgbbData.success) {
+                    shortImageUrl = imgbbData.data.url;
+                } else {
+                    alert("Не удалось сохранить скриншот на сервере картинок.");
+                    btn.removeAttribute("disabled");
+                    btn.innerText = "Проанализировать ставку";
+                    return;
+                }
+            } catch (err) {
+                alert("Ошибка загрузки файла на обменник.");
+                btn.removeAttribute("disabled");
+                btn.innerText = "Проанализировать ставку";
+                return;
+            }
+
+            btn.innerText = "Обработка купона ИИ...";
             try {
                 const response = await fetch(`${BACKEND_URL}/api/process`, {
                     method: "POST",
@@ -338,7 +383,7 @@
                     body: JSON.stringify({
                         user_id: getTelegramUserId(),
                         mode: currentMode,
-                        image: base64Image
+                        image_url: shortImageUrl
                     })
                 });
 
@@ -364,7 +409,6 @@
                     document.getElementById("res-h2h").innerText = an.head_to_head;
                     document.getElementById("res-final").innerText = an.final_verdict;
 
-                    // Отрисовка круглого индикатора уверенности
                     drawConfidenceCircle(an.confidence_percent);
                     document.getElementById("req-left").innerText = data.requests_left;
                 }
@@ -376,22 +420,18 @@
             }
         }
 
-        // Функция рисования круга уверенности через HTML5 Canvas
         function drawConfidenceCircle(percent) {
             const canvas = document.getElementById("circle-canvas");
             const ctx = canvas.getContext("2d");
             document.getElementById("circle-pct").innerText = `${percent}%`;
-
             ctx.clearRect(0, 0, 80, 80);
             
-            // Серый задний фон круга
             ctx.beginPath();
             ctx.arc(40, 40, 35, 0, 2 * Math.PI);
             ctx.strokeStyle = "#1c2436";
             ctx.lineWidth = 6;
             ctx.stroke();
 
-            // Зеленая дуга прогресса уверенности
             ctx.beginPath();
             ctx.arc(40, 40, 35, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * (percent / 100)));
             ctx.strokeStyle = "#00ff88";
