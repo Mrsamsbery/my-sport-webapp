@@ -51,7 +51,6 @@
             font-weight: 500;
         }
 
-        /* --- ИНТЕРАКТИВНЫЕ ВИДЖЕТЫ СТАТУСА И VIP --- */
         .status-widgets {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -84,7 +83,6 @@
             text-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
         }
 
-        /* --- ПУЛЬСИРУЮЩАЯ ПРЕМИУМ ЗОНА ЗАГРУЗКИ --- */
         .upload-zone {
             background: linear-gradient(145deg, #0e1812, #060a07);
             border: 2px dashed rgba(0, 255, 102, 0.2);
@@ -102,54 +100,16 @@
             0% { border-color: rgba(0, 255, 102, 0.15); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6); }
             100% { border-color: rgba(0, 255, 102, 0.35); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 255, 102, 0.05); }
         }
-        .upload-zone:active {
-            transform: scale(0.97);
-            border-color: var(--accent-color);
-        }
-        .upload-icon {
-            font-size: 50px;
-            margin-bottom: 12px;
-            display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.35));
-        }
-        .upload-text {
-            font-size: 15px;
-            color: var(--text-color);
-            font-weight: 700;
-            margin-bottom: 14px;
-        }
+        .upload-zone:active { transform: scale(0.97); border-color: var(--accent-color); }
+        .upload-icon { font-size: 50px; margin-bottom: 12px; display: inline-block; filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.35)); }
+        .upload-text { font-size: 15px; color: var(--text-color); font-weight: 700; margin-bottom: 14px; }
         
-        /* Теги подсказок внутри зоны */
-        .upload-hints {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .hint-tag {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 10px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-        
-        #preview-img {
-            display: none;
-            width: 110px;
-            height: 110px;
-            object-fit: cover;
-            border-radius: 22px;
-            margin: 0 auto 14px auto;
-            border: 2px solid var(--accent-color);
-            box-shadow: 0 0 20px rgba(0, 255, 102, 0.3);
-        }
-
+        .upload-hints { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+        .hint-tag { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; font-size: 10px; color: var(--text-muted); font-weight: 500; }
+        #preview-img { display: none; width: 110px; height: 110px; object-fit: cover; border-radius: 22px; margin: 0 auto 14px auto; border: 2px solid var(--accent-color); box-shadow: 0 0 20px rgba(0, 255, 102, 0.3); }
         #file-input { display: none; }
 
-        /* --- КНОПКА С ГРАДИЕНТОМ --- */
+        /* --- КНОПКА С НЕОНОВОЙ МИКРО-АНИМАЦИЕЙ --- */
         .btn {
             background: linear-gradient(90deg, var(--accent-color) 0%, #00ffaa 100%);
             color: #000000;
@@ -161,7 +121,7 @@
             font-weight: 800;
             letter-spacing: 0.5px;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
             box-shadow: 0 6px 20px rgba(0, 255, 102, 0.2);
         }
         .btn:active { transform: scale(0.98); }
@@ -170,25 +130,84 @@
             color: var(--text-muted);
             box-shadow: none;
             cursor: not-allowed;
+            animation: none !important;
+        }
+        /* Класс пульсации, добавляемый через JS при выборе файла */
+        .btn-ready-pulse {
+            animation: button-neon-pulse 2s infinite ease-in-out;
+        }
+        @keyframes button-neon-pulse {
+            0% { box-shadow: 0 6px 20px rgba(0, 255, 102, 0.3); }
+            50% { box-shadow: 0 0 25px rgba(0, 255, 102, 0.7), 0 0 10px var(--accent-color); }
+            100% { box-shadow: 0 6px 20px rgba(0, 255, 102, 0.3); }
         }
 
-        /* Кнопка быстрого возврата к кэшированному анализу матча */
         .btn-quick-access {
             display: none;
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border-color);
-            color: #cbd5e1;
+            background: rgba(0, 255, 102, 0.04);
+            border: 1px solid rgba(0, 255, 102, 0.15);
+            color: #00ff66;
             font-size: 13px;
-            font-weight: 600;
-            padding: 12px;
-            border-radius: 14px;
+            font-weight: 700;
+            padding: 14px;
+            border-radius: 16px;
             width: 100%;
             margin-top: 12px;
             cursor: pointer;
             text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: all 0.2s;
         }
+        .btn-quick-access:active { background: rgba(0, 255, 102, 0.08); }
 
-        /* --- ИНТЕРАКТИВНЫЙ ИИ-ЛОАДЕР --- */
+        /* --- СТИЛЬ ВЫЕЗЖАЮЩЕГО BOTTOM SHEET --- */
+        .bottom-sheet {
+            position: fixed;
+            bottom: -100%;
+            left: 0; right: 0;
+            background: #090f0b;
+            border-top: 2px solid var(--border-color);
+            border-radius: 28px 28px 0 0;
+            padding: 20px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
+            z-index: 3000;
+            transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .bottom-sheet.open { bottom: 0; }
+        .sheet-overlay {
+            position: fixed;
+            top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.7);
+            z-index: 2900;
+            display: none;
+            backdrop-filter: blur(4px);
+        }
+        .sheet-handle {
+            width: 40px; height: 5px;
+            background: #233a2a;
+            border-radius: 3px;
+            margin: 0 auto 16px auto;
+        }
+        .sheet-title {
+            font-size: 16px; font-weight: 800;
+            color: var(--accent-color);
+            text-transform: uppercase; margin-bottom: 14px;
+            letter-spacing: 0.5px; text-align: center;
+        }
+        .history-item {
+            background: linear-gradient(145deg, #111a14, #0d1410);
+            border: 1px solid var(--border-color);
+            padding: 14px; border-radius: 16px;
+            margin-bottom: 10px; cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .history-item:active { transform: scale(0.98); background: #15241b; }
+        .history-match { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+        .history-pick { font-size: 12px; color: var(--accent-color); font-weight: 600; }
+
+        /* --- ИИ-ЛОАДЕР --- */
         .loader-container {
             display: none;
             background: var(--card-gradient);
@@ -198,154 +217,39 @@
             margin: 25px 0;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
-        .spinner-box {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(0, 255, 102, 0.05);
-            border-top: 4px solid var(--accent-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        .loader-steps {
-            text-align: left;
-            max-width: 280px;
-            margin: 0 auto;
-        }
-        .step-item {
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-        .step-item.active {
-            color: var(--accent-color);
-            font-weight: 700;
-            transform: translateX(4px);
-        }
+        .spinner-box { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 255, 102, 0.05); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loader-steps { text-align: left; max-width: 280px; margin: 0 auto; }
+        .step-item { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; }
+        .step-item.active { color: var(--accent-color); font-weight: 700; transform: translateX(4px); }
         .step-item.done { color: #4a7556; }
-        .step-dot {
-            width: 6px;
-            height: 6px;
-            background-color: var(--text-muted);
-            border-radius: 50%;
-        }
-        .step-item.active .step-dot {
-            background-color: var(--accent-color);
-            box-shadow: 0 0 8px var(--accent-color);
-        }
+        .step-dot { width: 6px; height: 6px; background-color: var(--text-muted); border-radius: 50%; }
+        .step-item.active .step-dot { background-color: var(--accent-color); box-shadow: 0 0 8px var(--accent-color); }
         .step-item.done .step-dot { background-color: #4a7556; }
 
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- КАРТОЧКИ РЕЗУЛЬТАТОВ --- */
-        .results-panel {
-            display: none;
-            margin-top: 24px;
-            animation: fadeIn 0.4s ease;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .panel-title {
-            font-size: 17px;
-            font-weight: 800;
-            margin-bottom: 16px;
-            color: var(--accent-color);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .card {
-            background: var(--card-gradient);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-        }
-        .card-header {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        .card-body {
-            font-size: 14px;
-            line-height: 1.55;
-            color: #e2e8f0;
-        }
-        .match-title {
-            font-size: 19px;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-        .match-meta {
-            font-size: 13px;
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-        .pick-highlight {
-            font-size: 16px;
-            font-weight: 700;
-            background: rgba(0, 255, 102, 0.05);
-            padding: 12px;
-            border-radius: 12px;
-            border-left: 4px solid var(--accent-color);
-        }
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 14px;
-        }
-        .stat-badge {
-            background: #111a14;
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-badge span {
-            display: block;
-            font-size: 11px;
-            color: var(--text-muted);
-            margin-bottom: 2px;
-        }
+        /* --- КАРТОЧКИ ОТВЕТА --- */
+        .results-panel { display: none; margin-top: 24px; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .panel-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card { background: var(--card-gradient); border: 1px solid var(--border-color); border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .card-header { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
+        .card-body { font-size: 14px; line-height: 1.55; color: #e2e8f0; }
+        .match-title { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
+        .match-meta { font-size: 13px; color: var(--accent-color); font-weight: 600; }
+        .pick-highlight { font-size: 16px; font-weight: 700; background: rgba(0, 255, 102, 0.05); padding: 12px; border-radius: 12px; border-left: 4px solid var(--accent-color); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+        .stat-badge { background: #111a14; border: 1px solid var(--border-color); padding: 10px; border-radius: 12px; text-align: center; }
+        .stat-badge span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
         .stat-badge strong { font-size: 15px; color: #ffffff; }
 
         .confidence-box { margin-top: 12px; }
         .confidence-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
         .confidence-track { height: 6px; background: #16241c; border-radius: 4px; overflow: hidden; }
-        .confidence-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #00cc52, var(--accent-color));
-            width: 0%;
-            transition: width 1s ease-in-out;
-            box-shadow: 0 0 8px rgba(0, 255, 102, 0.5);
-        }
+        .confidence-bar { height: 100%; background: linear-gradient(90deg, #00cc52, var(--accent-color)); width: 0%; transition: width 1s ease-in-out; box-shadow: 0 0 8px rgba(0, 255, 102, 0.5); }
 
-        .error-card {
-            display: none;
-            background-color: rgba(255, 69, 58, 0.08);
-            border: 1px solid rgba(255, 69, 58, 0.25);
-            border-radius: 16px;
-            padding: 14px;
-            color: #ff453a;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        .error-card { display: none; background-color: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.25); border-radius: 16px; padding: 14px; color: #ff453a; font-size: 14px; text-align: center; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -374,8 +278,20 @@
 
     <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ С КЛЮЧОМ AI</button>
     
-    <button class="btn-quick-access" id="quick-access-btn" onclick="showCachedResults()">⚽ Посмотреть прошлый разбор матча</button>
+    <!-- Кнопка вызова истории -->
+    <button class="btn-quick-access" id="quick-access-btn" onclick="toggleSheet(true)">📋 История недавних разборов</button>
 
+    <!-- ТЕМНАЯ ПОДЛОЖКА И BOTTOM SHEET ДЛЯ ИСТОРИИ -->
+    <div class="sheet-overlay" id="sheet-overlay" onclick="toggleSheet(false)"></div>
+    <div class="bottom-sheet" id="bottom-sheet">
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">История разборов (без траты лимитов)</div>
+        <div id="history-list-container">
+            <!-- Элементы истории генерируются динамически через JS -->
+        </div>
+    </div>
+
+    <!-- ИИ-ЛОАДЕР -->
     <div class="loader-container" id="loader">
         <div class="spinner-box"><div class="spinner"></div></div>
         <div class="loader-steps">
@@ -389,6 +305,7 @@
 
     <div class="error-card" id="error-block"></div>
 
+    <!-- КАРТОЧКИ ОТВЕТА -->
     <div class="results-panel" id="results-panel">
         <div class="panel-title">📋 Заключение нейроанализа</div>
 
@@ -461,10 +378,7 @@
             try {
                 const response = await fetch(`${BACKEND_URL}/api/user/`, {
                     method: "POST",
-                    headers: { 
-                        "Content-Type": "application/json",
-                        "ngrok-skip-browser-warning": "true" 
-                    },
+                    headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
                     body: JSON.stringify({ user_id: String(userId) })
                 });
                 const data = await response.json();
@@ -502,7 +416,11 @@
                 previewImg.style.display = "block";
                 
                 document.getElementById("upload-status-text").innerText = "Купон успешно добавлен";
-                document.getElementById("analyze-btn").disabled = false;
+                
+                // Включаем кнопку и вешаем неоновый пульс-эффект
+                const analyzeBtn = document.getElementById("analyze-btn");
+                analyzeBtn.disabled = false;
+                analyzeBtn.classList.add("btn-ready-pulse");
             }
         }
 
@@ -560,6 +478,8 @@
             const resultsPanel = document.getElementById("results-panel");
             const analyzeBtn = document.getElementById("analyze-btn");
 
+            // Убираем пульсацию при начале загрузки
+            analyzeBtn.classList.remove("btn-ready-pulse");
             loader.style.display = "block";
             errorBlock.style.display = "none";
             resultsPanel.style.display = "none";
@@ -586,12 +506,12 @@
 
                 if (data.success && data.analysis) {
                     renderUI(data.analysis);
-                    localStorage.setItem('last_match_cache', JSON.stringify(data.analysis));
+                    saveToHistory(data.analysis);
                     
                     clearInterval(stepsInterval);
                     loader.style.display = "none";
                     resultsPanel.style.display = "block";
-                    checkQuickAccessBtn();
+                    resultsPanel.scrollIntoView({ behavior: 'smooth' });
                 } else {
                     throw new Error(data.error || "Ошибка генерации разбора.");
                 }
@@ -601,6 +521,7 @@
                 errorBlock.innerText = "Сбой: " + err.message;
                 errorBlock.style.display = "block";
                 analyzeBtn.disabled = false;
+                analyzeBtn.classList.add("btn-ready-pulse");
             }
         }
 
@@ -622,21 +543,79 @@
             }, 100);
         }
 
-        function showCachedResults() {
-            const cache = localStorage.getItem('last_match_cache');
-            if (cache) {
-                renderUI(JSON.parse(cache));
-                document.getElementById("results-panel").style.display = "block";
-                document.getElementById("results-panel").scrollIntoView({ behavior: 'smooth' });
+        /* --- ЛОГИКА BOTTOM SHEET И ХРАНЕНИЯ ИСТОРИИ (МАКС 5 МАТЧЕЙ) --- */
+        function toggleSheet(isOpen) {
+            const sheet = document.getElementById("bottom-sheet");
+            const overlay = document.getElementById("sheet-overlay");
+            if (isOpen) {
+                renderHistoryList();
+                sheet.classList.add("open");
+                overlay.style.display = "block";
+            } else {
+                sheet.classList.remove("open");
+                overlay.style.display = "none";
             }
         }
 
-        function checkQuickAccessBtn() {
-            if (localStorage.getItem('last_match_cache')) {
+        function saveToHistory(newAnalysis) {
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem("ai_analysis_history")) || [];
+            } catch (e) { history = []; }
+
+            // Исключаем дубли по названию матча
+            history = history.filter(item => item.match_title !== newAnalysis.match_title);
+            
+            // Добавляем в начало списка
+            history.unshift(newAnalysis);
+
+            // Обрезаем до 5 элементов
+            if (history.length > 5) history = history.slice(0, 5);
+
+            localStorage.setItem("ai_analysis_history", JSON.stringify(history));
+            checkHistoryButtonVisibility();
+        }
+
+        function renderHistoryList() {
+            const container = document.getElementById("history-list-container");
+            container.innerHTML = "";
+            
+            let history = [];
+            try { history = JSON.parse(localStorage.getItem("ai_analysis_history")) || []; } catch(e) {}
+
+            if (history.length === 0) {
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">История пуста. Загрузите свой первый купон!</div>`;
+                return;
+            }
+
+            history.forEach((analysis, index) => {
+                const div = document.createElement("div");
+                div.className = "history-item";
+                div.innerHTML = `
+                    <div class="history-match">${analysis.match_title || "Матч"}</div>
+                    <div class="history-pick">Модель выбрала: ${analysis.capper_pick || "Анализ"}</div>
+                `;
+                div.onclick = () => {
+                    renderUI(analysis);
+                    document.getElementById("results-panel").style.display = "block";
+                    toggleSheet(false);
+                    document.getElementById("results-panel").scrollIntoView({ behavior: 'smooth' });
+                };
+                container.appendChild(div);
+            });
+        }
+
+        function checkHistoryButtonVisibility() {
+            let history = [];
+            try { history = JSON.parse(localStorage.getItem("ai_analysis_history")) || []; } catch(e) {}
+            
+            if (history.length > 0) {
                 document.getElementById("quick-access-btn").style.display = "block";
+            } else {
+                document.getElementById("quick-access-btn").style.display = "none";
             }
         }
-        window.addEventListener('DOMContentLoaded', checkQuickAccessBtn);
+        window.addEventListener('DOMContentLoaded', checkHistoryButtonVisibility);
     </script>
 </body>
 </html>
