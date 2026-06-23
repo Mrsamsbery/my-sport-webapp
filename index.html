@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ставки Ai анализ</title>
     <style>
+        /* Идеальная цветовая гамма по скриншоту */
         :root {
             --bg-dark: #090d0a; 
             --card-bg: #111612; 
@@ -30,7 +31,7 @@
             padding-bottom: 110px; 
         }
 
-        /* ПАРАЩЕЕ ОКОШКО: КНОПКА НАЗАД */
+        /* ОТДЕЛЕННОЕ ОКОШКО: КНОПКА НАЗАД */
         .navigation-panel {
             position: fixed;
             bottom: 20px;
@@ -62,6 +63,7 @@
             gap: 8px;
         }
 
+        /* КАРТОЧКИ ИНТЕРФЕЙСА */
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -79,10 +81,6 @@
             display: flex;
             align-items: center;
             gap: 6px;
-        }
-
-        .card-meta-icon {
-            color: #ef4444; 
         }
 
         .match-title {
@@ -171,50 +169,84 @@
             width: 0%;
             transition: width 0.6s ease-in-out;
         }
+
+        /* ЭКРАН ЗАГРУЗКИ ТИПА SKELETON/LOAF */
+        #loading_screen {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-dark);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 15px;
+            color: var(--text-white);
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.05);
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="card-meta"><span class="card-meta-icon">📌</span> СОБЫТИЕ И ТУРНИР</div>
-        <div class="match-title" id="match_title">Анализ купона...</div>
-        <div class="league-title" id="league">Загрузка данных матча</div>
+    <div id="loading_screen" style="display: none;">
+        <div class="spinner"></div>
+        <div>Математическая ИИ-симуляция матча...</div>
     </div>
 
     <div class="card">
-        <div class="card-meta"><span class="card-meta-icon">🎯</span> МАТЕМАТИЧЕСКИЙ ИТОГ МОДЕЛИ</div>
-        <div class="main-pick-box" id="capper_pick">Обработка...</div>
+        <div class="card-meta">📌 СОБЫТИЕ И ТУРНИР</div>
+        <div class="match-title" id="match_title">Ожидание загрузки...</div>
+        <div class="league-title" id="league">Загрузите скриншот купона ставки</div>
     </div>
 
     <div class="card">
-        <div class="card-meta"><span class="card-meta-icon">📈</span> ОЦЕНКА ВАЛУЙНОСТИ (VALUE)</div>
-        <div class="section-text" id="value_verdict">ИИ оценивает вероятность исхода и погрешность линии букмекера...</div>
+        <div class="card-meta">🎯 МАТЕМАТИЧЕСКИЙ ИТОГ МОДЕЛИ</div>
+        <div class="main-pick-box" id="capper_pick">Исход не определен</div>
+    </div>
+
+    <div class="card">
+        <div class="card-meta">📈 ОЦЕНКА ВАЛУЙНОСТИ (VALUE)</div>
+        <div class="section-text" id="value_verdict">Здесь отобразится математический перевес над линией букмекера.</div>
         
         <div class="value-grid">
             <div class="value-sub-box">
                 <span class="sub-box-label">Выгода</span>
-                <span class="sub-box-value" id="value_profit">Расчёт...</span>
+                <span class="sub-box-value" id="value_profit">—</span>
             </div>
             <div class="value-sub-box">
                 <span class="sub-box-label">Маржа БК</span>
-                <span class="sub-box-value" id="margin_eval">Расчёт...</span>
+                <span class="sub-box-value" id="margin_eval">—</span>
             </div>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-meta"><span class="card-meta-icon">📊</span> ТРЕНДЫ И СОСТОЯНИЕ КОМАНД</div>
-        <div class="section-text" id="form_trends">Нейросеть генерирует продвинутую статистику и xG метрики...</div>
+        <div class="card-meta">📊 ТРЕНДЫ И СОСТОЯНИЕ КОМАНД</div>
+        <div class="section-text" id="form_trends">Статистика последних 5 встреч, xG-метрики и кадровые новости.</div>
     </div>
 
     <div class="card">
-        <div class="card-meta"><span class="card-meta-icon">👥</span> ИСТОРИЯ ОЧНЫХ ПРОТИВОСТОЯНИЙ</div>
-        <div class="section-text" id="head_to_head">Стилистический разбор тактических схем и прошлых личных встреч...</div>
+        <div class="card-meta">👥 ИСТОРИЯ ОЧНЫХ ПРОТИВОСТОЯНИЙ</div>
+        <div class="section-text" id="head_to_head">Стилистический разбор тактики и очных встреч команд.</div>
     </div>
 
     <div class="card">
-        <div class="card-meta"><span class="card-meta-icon">🧠</span> РАСШИРЕННЫЙ МАТЕМАТИЧЕСКИЙ АНАЛИЗ</div>
-        <div class="section-text" id="final_verdict">Пошаговое моделирование игровых сценариев...</div>
+        <div class="card-meta">🧠 РАСШИРЕННЫЙ МАТЕМАТИЧЕСКИЙ АНАЛИЗ</div>
+        <div class="section-text" id="final_verdict">Пошаговое моделирование сценариев поединка от ИИ.</div>
         
         <div class="confidence-row">
             <span>Уверенность модели:</span>
@@ -232,10 +264,50 @@
     </div>
 
     <script>
-        // Функция интеграции с бэкендом
+        const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev";
+
+        // Функция автоматической отправки картинки (вызывай её из родительского интерфейса Mini App)
+        async function analyzeCoupon(imageFile, userId = "guest", mode = "single") {
+            const loadingScreen = document.getElementById('loading_screen');
+            loadingScreen.style.display = 'flex'; // Показываем экран загрузки
+
+            const formData = new FormData();
+            formData.append('image', imageFile);
+            formData.append('user_id', userId);
+            formData.append('mode', mode);
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/process/`, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'ngrok-skip-browser-warning': 'true'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data.success && data.analysis) {
+                    updateUI(data.analysis);
+                    // Сохраняем в кэш для стабильности
+                    localStorage.setItem('last_analysis', JSON.stringify(data.analysis));
+                } else {
+                    alert("Ошибка анализа: " + (data.error || "Неизвестный сбой сервера"));
+                }
+            } catch (error) {
+                console.error("Сбой fetch-запроса:", error);
+                alert("Не удалось связаться с сервером аналитики.");
+            } finally {
+                loadingScreen.style.display = 'none'; // Убираем экран загрузки
+            }
+        }
+
+        // Обновление всех элементов вёрстки по ключам JSON
         function updateUI(analysisData) {
             if(!analysisData) return;
             
+            document.getElementById('loading_screen').style.display = 'none';
+
             if(analysisData.match_title) document.getElementById('match_title').innerText = analysisData.match_title;
             if(analysisData.league) document.getElementById('league').innerText = analysisData.league;
             if(analysisData.capper_pick) document.getElementById('capper_pick').innerText = analysisData.capper_pick;
@@ -247,8 +319,9 @@
             if(analysisData.final_verdict) document.getElementById('final_verdict').innerText = analysisData.final_verdict;
             
             if(analysisData.confidence_percent) {
-                document.getElementById('confidence_percent').innerText = analysisData.confidence_percent + "%";
-                document.getElementById('confidence_bar').style.width = analysisData.confidence_percent + "%";
+                const pct = parseInt(analysisData.confidence_percent) || 0;
+                document.getElementById('confidence_percent').innerText = pct + "%";
+                document.getElementById('confidence_bar').style.width = pct + "%";
             }
         }
 
@@ -260,6 +333,7 @@
             }
         }
 
+        // Авто-подхват данных при обновлении экрана пользователем
         window.addEventListener('DOMContentLoaded', () => {
             const cachedData = localStorage.getItem('last_analysis');
             if(cachedData) {
