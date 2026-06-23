@@ -396,7 +396,7 @@
         
         let currentMode = "single";
         let rawFile = null;
-        let isUserVip = false; // Глобальный флаг статуса
+        let isUserVip = false;
 
         function getTelegramUserId() {
             return (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : "guest";
@@ -414,15 +414,20 @@
 
         async function loadLimits() {
             try {
-                const response = await fetch(`${BACKEND_URL}/api/user?user_id=${getTelegramUserId()}`, {
-                    method: "GET",
-                    headers: { "ngrok-skip-browser-warning": "true" }
+                // Жесткий POST запрос для обхода любых страниц-заглушек ngrok
+                const response = await fetch(`${BACKEND_URL}/api/user`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true"
+                    },
+                    body: JSON.stringify({ user_id: getTelegramUserId() })
                 });
                 const data = await response.json();
                 
                 const counterBox = document.getElementById("limits-counter");
                 if (data.success) {
-                    isUserVip = data.is_vip; // Фиксируем статус
+                    isUserVip = data.is_vip; 
                     if (isUserVip) {
                         counterBox.innerHTML = `Статус: 👑 <span>VIP (Безлимит)</span>`;
                     } else {
@@ -519,7 +524,7 @@
                     document.getElementById("res-sport").innerText = an.sport;
                     document.getElementById("res-match").innerText = an.match_title;
                     document.getElementById("res-league").innerText = an.league;
-                    document.getElementById("res-pick").innerText = an.pick_text || an.capper_pick;
+                    document.getElementById("res-pick").innerText = an.capper_pick;
                     document.getElementById("res-value").innerText = an.value_verdict;
                     document.getElementById("res-profit").innerText = an.value_profit;
                     document.getElementById("res-margin").innerText = an.margin_eval;
@@ -529,7 +534,6 @@
 
                     drawConfidenceCircle(an.confidence_percent);
                     
-                    // Безопасное обновление счетчика без текстовых конфликтов
                     const counterBox = document.getElementById("limits-counter");
                     if (!isUserVip) {
                         counterBox.innerHTML = `Осталось бесплатных прогнозов: <span>${data.requests_left}</span>`;
