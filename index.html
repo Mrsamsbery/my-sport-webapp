@@ -109,7 +109,6 @@
         #preview-img { display: none; width: 110px; height: 110px; object-fit: cover; border-radius: 22px; margin: 0 auto 14px auto; border: 2px solid var(--accent-color); box-shadow: 0 0 20px rgba(0, 255, 102, 0.3); }
         #file-input { display: none; }
 
-        /* --- КНОПКА С НЕОНОВОЙ МИКРО-АНИМАЦИЕЙ --- */
         .btn {
             background: linear-gradient(90deg, var(--accent-color) 0%, #00ffaa 100%);
             color: #000000;
@@ -132,7 +131,6 @@
             cursor: not-allowed;
             animation: none !important;
         }
-        /* Класс пульсации, добавляемый через JS при выборе файла */
         .btn-ready-pulse {
             animation: button-neon-pulse 2s infinite ease-in-out;
         }
@@ -158,9 +156,8 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.2);
             transition: all 0.2s;
         }
-        .btn-quick-access:active { background: rgba(0, 255, 102, 0.08); }
 
-        /* --- СТИЛЬ ВЫЕЗЖАЮЩЕГО BOTTOM SHEET --- */
+        /* BOTTOM SHEET */
         .bottom-sheet {
             position: fixed;
             bottom: -100%;
@@ -184,39 +181,61 @@
             display: none;
             backdrop-filter: blur(4px);
         }
-        .sheet-handle {
-            width: 40px; height: 5px;
-            background: #233a2a;
-            border-radius: 3px;
-            margin: 0 auto 16px auto;
-        }
-        .sheet-title {
-            font-size: 16px; font-weight: 800;
-            color: var(--accent-color);
-            text-transform: uppercase; margin-bottom: 14px;
-            letter-spacing: 0.5px; text-align: center;
-        }
-        .history-item {
-            background: linear-gradient(145deg, #111a14, #0d1410);
-            border: 1px solid var(--border-color);
-            padding: 14px; border-radius: 16px;
-            margin-bottom: 10px; cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .history-item:active { transform: scale(0.98); background: #15241b; }
+        .sheet-handle { width: 40px; height: 5px; background: #233a2a; border-radius: 3px; margin: 0 auto 16px auto; }
+        .sheet-title { font-size: 16px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; margin-bottom: 14px; text-align: center; }
+        .history-item { background: linear-gradient(145deg, #111a14, #0d1410); border: 1px solid var(--border-color); padding: 14px; border-radius: 16px; margin-bottom: 10px; cursor: pointer; }
         .history-match { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .history-pick { font-size: 12px; color: var(--accent-color); font-weight: 600; }
 
-        /* --- ИИ-ЛОАДЕР --- */
-        .loader-container {
-            display: none;
-            background: var(--card-gradient);
+        /* --- НОВЫЙ ИНТЕРАКТИВНЫЙ xG-ВИДЖЕТ БАЛАНСА СИЛ --- */
+        .xg-widget {
+            margin-top: 18px;
+            background: #090f0b;
             border: 1px solid var(--border-color);
-            padding: 24px;
-            border-radius: 24px;
-            margin: 25px 0;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border-radius: 16px;
+            padding: 14px;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
+        .xg-widget-header {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+        .xg-teams-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .xg-team-home { color: var(--accent-color); text-align: left; width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .xg-team-away { color: #ffffff; text-align: right; width: 45%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .xg-track {
+            height: 12px;
+            background: #19221b;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+        }
+        .xg-bar-home {
+            height: 100%;
+            background: linear-gradient(90deg, #00cc52, var(--accent-color));
+            width: 50%; /* Динамически меняется */
+            transition: width 1.2s ease-out;
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
+        }
+        .xg-bar-away {
+            height: 100%;
+            background: #253328;
+            flex-grow: 1;
+        }
+
+        /* ЛОАДЕР */
+        .loader-container { display: none; background: var(--card-gradient); border: 1px solid var(--border-color); padding: 24px; border-radius: 24px; margin: 25px 0; }
         .spinner-box { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
         .spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 255, 102, 0.05); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
         .loader-steps { text-align: left; max-width: 280px; margin: 0 auto; }
@@ -226,10 +245,9 @@
         .step-dot { width: 6px; height: 6px; background-color: var(--text-muted); border-radius: 50%; }
         .step-item.active .step-dot { background-color: var(--accent-color); box-shadow: 0 0 8px var(--accent-color); }
         .step-item.done .step-dot { background-color: #4a7556; }
-
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* --- КАРТОЧКИ ОТВЕТА --- */
+        /* КАРТОЧКИ ОТВЕТА */
         .results-panel { display: none; margin-top: 24px; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .panel-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -278,17 +296,13 @@
 
     <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ С КЛЮЧОМ AI</button>
     
-    <!-- Кнопка вызова истории -->
     <button class="btn-quick-access" id="quick-access-btn" onclick="toggleSheet(true)">📋 История недавних разборов</button>
 
-    <!-- ТЕМНАЯ ПОДЛОЖКА И BOTTOM SHEET ДЛЯ ИСТОРИИ -->
     <div class="sheet-overlay" id="sheet-overlay" onclick="toggleSheet(false)"></div>
     <div class="bottom-sheet" id="bottom-sheet">
         <div class="sheet-handle"></div>
         <div class="sheet-title">История разборов (без траты лимитов)</div>
-        <div id="history-list-container">
-            <!-- Элементы истории генерируются динамически через JS -->
-        </div>
+        <div id="history-list-container"></div>
     </div>
 
     <!-- ИИ-ЛОАДЕР -->
@@ -349,6 +363,19 @@
             <div class="card-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
             <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
             
+            <!-- xG ВИДЖЕТ СООТНОШЕНИЯ СИЛ КОМАНД -->
+            <div class="xg-widget">
+                <div class="xg-widget-header">📊 Симуляция атакующего потенциала (xG)</div>
+                <div class="xg-teams-labels">
+                    <span class="xg-team-home" id="ui-xg-home-name">Хозяева</span>
+                    <span class="xg-team-away" id="ui-xg-away-name">Гости</span>
+                </div>
+                <div class="xg-track">
+                    <div class="xg-bar-home" id="ui-xg-bar-home"></div>
+                    <div class="xg-bar-away"></div>
+                </div>
+            </div>
+
             <div class="confidence-box">
                 <div class="confidence-label">
                     <span style="color: var(--text-muted); font-size: 12px;">Уверенность модели:</span>
@@ -417,7 +444,6 @@
                 
                 document.getElementById("upload-status-text").innerText = "Купон успешно добавлен";
                 
-                // Включаем кнопку и вешаем неоновый пульс-эффект
                 const analyzeBtn = document.getElementById("analyze-btn");
                 analyzeBtn.disabled = false;
                 analyzeBtn.classList.add("btn-ready-pulse");
@@ -473,12 +499,16 @@
         async function startAnalysis() {
             if (!selectedFile) return;
 
+            // 📳 НА ТИВНАЯ ВИБРАЦИЯ ТГ: ЛЕГКИЙ КЛИК ПРИ НАЖАТИИ КНОПКИ
+            if (window.Telegram && tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+
             const loader = document.getElementById("loader");
             const errorBlock = document.getElementById("error-block");
             const resultsPanel = document.getElementById("results-panel");
             const analyzeBtn = document.getElementById("analyze-btn");
 
-            // Убираем пульсацию при начале загрузки
             analyzeBtn.classList.remove("btn-ready-pulse");
             loader.style.display = "block";
             errorBlock.style.display = "none";
@@ -511,6 +541,12 @@
                     clearInterval(stepsInterval);
                     loader.style.display = "none";
                     resultsPanel.style.display = "block";
+
+                    // 📳 НА ТИВНАЯ ВИБРАЦИЯ ТГ: ДВОЙНОЙ УСПЕШНЫЙ КЛИК ПОСЛЕ ОТРИСОВКИ
+                    if (window.Telegram && tg.HapticFeedback) {
+                        tg.HapticFeedback.notificationOccurred('success');
+                    }
+
                     resultsPanel.scrollIntoView({ behavior: 'smooth' });
                 } else {
                     throw new Error(data.error || "Ошибка генерации разбора.");
@@ -526,7 +562,8 @@
         }
 
         function renderUI(analysis) {
-            document.getElementById("ui-match-title").innerText = analysis.match_title || "Матч";
+            const title = analysis.match_title || "Матч";
+            document.getElementById("ui-match-title").innerText = title;
             document.getElementById("ui-league").innerText = analysis.league || "Турнир не определен";
             document.getElementById("ui-capper-pick").innerText = analysis.capper_pick || "-";
             document.getElementById("ui-value-verdict").innerText = analysis.value_verdict || "-";
@@ -536,14 +573,23 @@
             document.getElementById("ui-head-to-head").innerText = analysis.head_to_head || "-";
             document.getElementById("ui-final-verdict").innerText = analysis.final_verdict || "-";
             
-            const conf = analysis.confidence_percent || 75;
+            const conf = parseInt(analysis.confidence_percent) || 75;
             document.getElementById("ui-confidence-percent").innerText = conf + "%";
+            
+            // Распределяем названия команд в xG-виджет баланса сил
+            let teams = title.split(/ vs | × | - /i);
+            const homeName = teams[0] ? teams[0].trim() : "Хозяева";
+            const awayName = teams[1] ? teams[1].trim() : "Гости";
+            
+            document.getElementById("ui-xg-home-name").innerText = `${homeName} (${conf}%)`;
+            document.getElementById("ui-xg-away-name").innerText = `(${100 - conf}%) ${awayName}`;
+            
             setTimeout(() => {
                 document.getElementById("ui-confidence-bar").style.width = conf + "%";
+                document.getElementById("ui-xg-bar-home").style.width = conf + "%";
             }, 100);
         }
 
-        /* --- ЛОГИКА BOTTOM SHEET И ХРАНЕНИЯ ИСТОРИИ (МАКС 5 МАТЧЕЙ) --- */
         function toggleSheet(isOpen) {
             const sheet = document.getElementById("bottom-sheet");
             const overlay = document.getElementById("sheet-overlay");
@@ -559,19 +605,10 @@
 
         function saveToHistory(newAnalysis) {
             let history = [];
-            try {
-                history = JSON.parse(localStorage.getItem("ai_analysis_history")) || [];
-            } catch (e) { history = []; }
-
-            // Исключаем дубли по названию матча
+            try { history = JSON.parse(localStorage.getItem("ai_analysis_history")) || []; } catch (e) {}
             history = history.filter(item => item.match_title !== newAnalysis.match_title);
-            
-            // Добавляем в начало списка
             history.unshift(newAnalysis);
-
-            // Обрезаем до 5 элементов
             if (history.length > 5) history = history.slice(0, 5);
-
             localStorage.setItem("ai_analysis_history", JSON.stringify(history));
             checkHistoryButtonVisibility();
         }
@@ -579,23 +616,24 @@
         function renderHistoryList() {
             const container = document.getElementById("history-list-container");
             container.innerHTML = "";
-            
             let history = [];
             try { history = JSON.parse(localStorage.getItem("ai_analysis_history")) || []; } catch(e) {}
 
             if (history.length === 0) {
-                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">История пуста. Загрузите свой первый купон!</div>`;
+                container.innerHTML = `<div style="text-align:center; color:var(--text-muted); font-size:13px; padding:20px;">История пуста. Загрузите скриншот!</div>`;
                 return;
             }
 
-            history.forEach((analysis, index) => {
+            history.forEach((analysis) => {
                 const div = document.createElement("div");
                 div.className = "history-item";
                 div.innerHTML = `
                     <div class="history-match">${analysis.match_title || "Матч"}</div>
-                    <div class="history-pick">Модель выбрала: ${analysis.capper_pick || "Анализ"}</div>
+                    <div class="history-pick">Прогноз модели: ${analysis.capper_pick || "Анализ"}</div>
                 `;
                 div.onclick = () => {
+                    // Клик по истории также делает легкую тактильную вибрацию
+                    if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                     renderUI(analysis);
                     document.getElementById("results-panel").style.display = "block";
                     toggleSheet(false);
@@ -608,12 +646,7 @@
         function checkHistoryButtonVisibility() {
             let history = [];
             try { history = JSON.parse(localStorage.getItem("ai_analysis_history")) || []; } catch(e) {}
-            
-            if (history.length > 0) {
-                document.getElementById("quick-access-btn").style.display = "block";
-            } else {
-                document.getElementById("quick-access-btn").style.display = "none";
-            }
+            document.getElementById("quick-access-btn").style.display = history.length > 0 ? "block" : "none";
         }
         window.addEventListener('DOMContentLoaded', checkHistoryButtonVisibility);
     </script>
