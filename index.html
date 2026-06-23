@@ -2,444 +2,230 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AI Bet Analyzer</title>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body { background-color: #0b0e14; color: #ffffff; padding: 16px; display: flex; flex-direction: column; min-height: 100vh; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-top: 10px; }
-        .header h1 { font-size: 22px; font-weight: 700; color: #fff; }
-        
-        /* КНОПКА ПЕРЕКЛЮЧЕНИЯ ЯЗЫКА */
-        .lang-btn { background: #141923; color: #00e676; border: 1px solid #1f2735; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-        .lang-btn:hover { background: #1a202c; }
-
-        .tabs-container { display: flex; background: #141923; border-radius: 12px; padding: 4px; margin-bottom: 16px; border: 1px solid #1f2735; }
-        .tab-btn { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; color: #6c7883; background: transparent; border: none; border-radius: 8px; cursor: pointer; }
-        .tab-btn.active { background: #1a202c; color: #00e676; border: 1px solid rgba(0,230,118,0.1); }
-
-        .main-card { background: #141923; border-radius: 16px; padding: 20px; border: 1px solid #1f2735; box-shadow: 0 8px 24px rgba(0,0,0,0.3); margin-bottom: 16px; }
-        .upload-zone { border: 2px dashed #2c384e; border-radius: 12px; padding: 30px 16px; text-align: center; cursor: pointer; background: #1a202c; }
-        .upload-icon { font-size: 36px; margin-bottom: 8px; display: inline-block; }
-        .upload-text { font-size: 14px; font-weight: 500; color: #e2e8f0; }
-        #file-input { display: none; }
-        
-        .btn { background-color: #00e676; color: #0b0e14; border: none; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; width: 100%; cursor: pointer; margin-top: 16px; }
-        .btn:disabled { background-color: #1f2735; color: #6c7883; cursor: not-allowed; }
-        .limit-counter { text-align: center; font-size: 12px; color: #6c7883; margin-top: 10px; font-weight: 500; }
-        .limit-counter span { color: #00e676; font-weight: 700; }
-        
-        .result-container { display: none; }
-        .card-panel { background: #141923; border-radius: 16px; padding: 16px; border: 1px solid #1f2735; margin-bottom: 12px; }
-        
-        .sport-badge { display: inline-flex; align-items: center; background: #1e2638; color: #00e676; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 10px; border: 1px solid rgba(0,230,118,0.1); }
-        .match-title { font-size: 20px; font-weight: 700; line-height: 1.3; color: #ffffff; }
-        .tournament-title { font-size: 13px; color: #6c7883; font-weight: 500; margin-top: 4px; }
-        
-        .outcome-card { background: linear-gradient(135deg, #152228, #111a24); border-left: 4px solid #00e676; }
-        .odds-card { background: linear-gradient(135deg, #1d1633, #120f24); border-left: 4px solid #bb86fc; }
-        .section-label { font-size: 11px; color: #6c7883; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        .outcome-value { font-size: 22px; font-weight: 800; color: #00e676; }
-        .odds-value { font-size: 14px; line-height: 1.5; color: #e3d5ff; }
-        
-        .info-block { margin-bottom: 14px; }
-        .info-text { font-size: 14px; line-height: 1.5; color: #cbd5e1; margin-top: 4px; }
-        
-        .analytics-row { display: flex; align-items: center; gap: 20px; margin-top: 10px; }
-        .chart-wrapper { position: relative; width: 85px; height: 85px; flex-shrink: 0; }
-        .circle-chart { transform: rotate(-90deg); width: 100%; height: 100%; }
-        .circle-bg { fill: none; stroke: #1f2735; stroke-width: 3.8; }
-        .circle-fill { fill: none; stroke: #00e676; stroke-width: 3.8; stroke-linecap: round; stroke-dasharray: 0, 100; transition: stroke-dasharray 1.2s ease-out; }
-        .chart-percentage { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; font-weight: 700; color: #ffffff; }
-        
-        .express-match-card { background: #1a202c; border: 1px solid #2d3748; border-radius: 12px; padding: 12px; margin-top: 10px; }
-        .exp-title { font-size: 15px; font-weight: 700; color: #fff; }
-        .exp-outcome { font-size: 13px; color: #00e676; font-weight: 600; margin: 4px 0; }
-        .exp-verdict { font-size: 13px; color: #cbd5e1; line-height: 1.4; }
-
-        .history-title { font-size: 16px; font-weight: 700; margin: 10px 0 12px 4px; color: #e2e8f0; }
-        .history-item { background: #141923; border: 1px solid #1f2735; border-radius: 12px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .hist-info { display: flex; flex-direction: column; gap: 2px; max-width: 70%; }
-        .hist-match { font-size: 14px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .hist-meta { font-size: 11px; color: #6c7883; }
-        .hist-badge { background: #1b2230; color: #00e676; padding: 4px 8px; border-radius: 8px; font-size: 12px; font-weight: 700; min-width: 75px; text-align: center; }
-
-        .loader { display: none; text-align: center; padding: 30px 20px; }
-        .spinner { border: 4px solid rgba(255,255,255,0.05); width: 40px; height: 40px; border-radius: 50%; border-left-color: #00e676; animation: spin 0.8s linear infinite; display: inline-block; margin-bottom: 12px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Ставки Анализ</title>
+    <!-- Официальный скрипт Telegram WebApp -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #11141a; /* Твой темный интерфейс */
+            color: #ffffff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .counter-box {
+            background-color: #1b202c;
+            padding: 12px 15px;
+            border-radius: 12px;
+            text-align: center;
+            font-weight: 500;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border: 1px solid #2c354a;
+            color: #00ff88; /* Красивый зеленый акцент */
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #2c354a;
+            background-color: #1b202c;
+            color: #ffffff;
+            box-sizing: border-box;
+            resize: none;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #00ff88;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            border-radius: 12px;
+            border: none;
+            background-color: #00ff88;
+            color: #11141a;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:disabled {
+            background-color: #2c354a;
+            color: #666666;
+            cursor: not-allowed;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #1b202c;
+            border: 1px solid #2c354a;
+            border-radius: 12px;
+            min-height: 50px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 15px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1 id="lbl-title">AI Анализатор Ставок</h1>
-        <button class="lang-btn" id="lang-toggle" onclick="toggleLanguage()">🌐 EN</button>
-    </div>
+    <div class="container">
+        <div class="header">
+            <h2>AI Анализатор Ставок</h2>
+        </div>
 
-    <div class="tabs-container">
-        <button class="tab-btn active" id="tab-single" onclick="setMode('single')">⚽ Одиночная ставка</button>
-        <button class="tab-btn" id="tab-express" onclick="setMode('express')">🚂 Разбор Экспресса</button>
-    </div>
+        <!-- Индикатор лимитов -->
+        <div id="limits-counter" class="counter-box">
+            🔄 Получение лимитов с сервера...
+        </div>
 
-    <div class="main-card" id="upload-card">
-        <div class="upload-zone" onclick="triggerSelect()">
-            <span class="upload-icon">📸</span>
-            <div class="upload-text" id="upload-status">Выбрать скриншот ординара</div>
-        </div>
-        <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
-        <button class="btn" id="send-btn" disabled onclick="startFullAnalysis()">Проанализировать ставку</button>
-        <div class="limit-counter" id="limit-display">Загрузка лимитов...</div>
-    </div>
+        <!-- Поле ввода -->
+        <textarea id="text-input" placeholder="Вставьте текст купона или данные матча..."></textarea>
 
-    <div class="loader" id="loader">
-        <div class="spinner"></div>
-        <div id="loader-text" style="font-size: 14px; color: #6c7883;">Обработка купона...</div>
-    </div>
+        <!-- Кнопка действия -->
+        <button id="submit-btn" onclick="sendDataToProcess()">Обработать данные ИИ</button>
 
-    <div class="result-container" id="result-layout-single">
-        <div class="card-panel">
-            <div class="sport-badge" id="res-sport">-</div>
-            <div class="match-title" id="res-match">-</div>
-            <div class="tournament-title" id="res-tournament">-</div>
-        </div>
-        <div class="card-panel outcome-card">
-            <div class="section-label" id="lbl-capper-choice">🎯 Выбор каппера</div>
-            <div class="outcome-value" id="res-outcome">-</div>
-        </div>
-        <div class="card-panel odds-card">
-            <div class="section-label" id="lbl-value-odds" style="color: #bb86fc;">📊 Валуйность коэффициентов</div>
-            <div class="odds-value" id="res-odds">-</div>
-        </div>
-        <div class="card-panel">
-            <div class="info-block">
-                <div class="section-label" id="lbl-teams-form">📈 Форма команд и тренды</div>
-                <div class="info-text" id="res-form">-</div>
-            </div>
-            <div class="info-block" style="margin-bottom: 0;">
-                <div class="section-label" id="lbl-h2h-stats">📊 Аналитика личных встреч</div>
-                <div class="info-text" id="res-stats">-</div>
-            </div>
-        </div>
-        <div class="card-panel">
-            <div class="section-label" id="lbl-final-verdict">🧠 Итоговый вердикт и Уверенность</div>
-            <div class="analytics-row">
-                <div class="chart-wrapper">
-                    <svg viewBox="0 0 36 36" class="circle-chart">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle-fill" id="res-circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                    </svg>
-                    <div class="chart-percentage" id="res-percent">0%</div>
-                </div>
-                <div class="info-text" id="res-reason" style="margin-top:0; flex:1;">-</div>
-            </div>
-        </div>
-        <button class="btn btn-reset" style="background-color: #1a202c; color: #6c7883; border: 1px solid #1f2735;" onclick="resetAnalyzer()">Загрузить другой купон</button>
-    </div>
-
-    <div class="result-container" id="result-layout-express">
-        <div class="card-panel outcome-card" style="border-left-color: #bb86fc;">
-            <div class="section-label" id="lbl-exp-capper" style="color: #bb86fc;">🚂 Капперский вердикт по экспрессу</div>
-            <div class="info-text" id="exp-total-verdict" style="color:#fff; font-size:15px; font-weight:500;">-</div>
-        </div>
-        <div class="card-panel">
-            <div class="section-label" id="lbl-exp-prob">📊 Общая вероятность прохода поезда</div>
-            <div class="analytics-row">
-                <div class="chart-wrapper">
-                    <svg viewBox="0 0 36 36" class="circle-chart">
-                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                        <path class="circle-fill" id="exp-circle" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" style="stroke: #bb86fc;" />
-                    </svg>
-                    <div class="chart-percentage" id="exp-percent">0%</div>
-                </div>
-                <div class="info-text" id="lbl-exp-prob-desc" style="margin-top:0; flex:1; color:#6c7883;">Вероятность рассчитана математическим перемножением рисков каждого плеча купона.</div>
-            </div>
-        </div>
-        <div class="card-panel">
-            <div class="section-label" id="lbl-exp-events" style="margin-bottom: 4px;">📋 Разбор событий внутри купона</div>
-            <div id="express-matches-list"></div>
-        </div>
-        <button class="btn btn-reset" style="background-color: #1a202c; color: #6c7883; border: 1px solid #1f2735;" onclick="resetAnalyzer()">Загрузить другой купон</button>
-    </div>
-
-    <div id="history-section">
-        <div class="history-title" id="lbl-hist-title">📜 Последние ординары</div>
-        <div id="history-list"></div>
+        <!-- Блок вывода ответа -->
+        <div id="result-block" class="result-box" style="display: none;"></div>
     </div>
 
     <script>
+        // Инициализируем WebApp Телеграма
         const tg = window.Telegram.WebApp;
+        tg.ready();
         tg.expand(); 
 
-        const USER_TELEGRAM_ID = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user.id : "guest";
-        const IMGBB_API_KEY = "ef89d67af46ee9756225dc9ab1f4bd3b"; 
+        // Твой IP сервера Hostman
         const BACKEND_URL = "http://212.192.3.244:5000"; 
 
-        let currentMode = 'single'; 
-        let selectedFile = null;
-        let currentLang = localStorage.getItem('app_lang') || 'ru'; // Сохраняем выбор в кэш телефона
-
-        // Словарь переводов элементов интерфейса
-        const i18n = {
-            ru: {
-                title: "AI Анализатор Ставок",
-                tabSingle: "⚽ Одиночная ставка",
-                tabExpress: "🚂 Разбор Экспресса",
-                uploadSingle: "Выбрать скриншот ординара",
-                uploadExpress: "Выбрать скриншот Экспресса (Купона)",
-                uploadDone: "Скриншот загружен!",
-                btnAnalyze: "Проанализировать ставку",
-                limitsLoading: "Загрузка лимитов...",
-                limitsText: "Осталось бесплатных прогнозов на сегодня: <span>{val}</span>",
-                loaderText: "Обработка купона ИИ...",
-                lblCapperChoice: "🎯 Выбор каппера",
-                lblValueOdds: "📊 Валуйность коэффициентов",
-                lblTeamsForm: "📈 Форма команд и тренды",
-                lblH2hStats: "📊 Аналитика личных встреч",
-                lblFinalVerdict: "🧠 Итоговый вердикт и Уверенность",
-                btnReset: "Загрузить другой купон",
-                lblExpCapper: "🚂 Капперский вердикт по экспрессу",
-                lblExpProb: "📊 Общая вероятность прохода поезда",
-                lblExpProbDesc: "Вероятность рассчитана математическим перемножением рисков каждого плеча купона.",
-                lblExpEvents: "📋 Разбор событий внутри купона",
-                lblHistTitle: "📜 Последние ординары",
-                historyEmpty: "История пуста",
-                histChoice: "Выбор",
-                histConfidence: "🎯 Уверенность",
-                oddsVerdict: "Вердикт",
-                oddsValue: "Выгода",
-                oddsMargin: "Оценка маржи",
-                expChoice: "Выбор купона"
-            },
-            en: {
-                title: "AI Bet Analyzer",
-                tabSingle: "⚽ Single Bet",
-                tabExpress: "🚂 Accumulator (Express)",
-                uploadSingle: "Select single bet screenshot",
-                uploadExpress: "Select Accumulator screenshot",
-                uploadDone: "Screenshot uploaded!",
-                btnAnalyze: "Analyze Bet Now",
-                limitsLoading: "Loading limits...",
-                limitsText: "Free predictions left for today: <span>{val}</span>",
-                loaderText: "AI is processing coupon...",
-                lblCapperChoice: "🎯 Capper's Choice",
-                lblValueOdds: "📊 Odds Value Analysis",
-                lblTeamsForm: "📈 Team Form & Trends",
-                lblH2hStats: "📊 H2H Analytics",
-                lblFinalVerdict: "🧠 Final Verdict & Confidence",
-                btnReset: "Upload Another Coupon",
-                lblExpCapper: "🚂 Accumulator Capper Verdict",
-                lblExpProb: "📊 Total Winning Probability",
-                lblExpProbDesc: "Probability calculated by mathematical multiplication of each leg's risks.",
-                lblExpEvents: "📋 Leg Breakdown Inside Coupon",
-                lblHistTitle: "📜 Recent Singles",
-                historyEmpty: "History is empty",
-                histChoice: "Pick",
-                histConfidence: "🎯 Confidence",
-                oddsVerdict: "Verdict",
-                oddsValue: "Value Score",
-                oddsMargin: "Margin Est.",
-                expChoice: "Coupon Pick"
+        // Получаем уникальный Telegram ID пользователя
+        function getTelegramUserId() {
+            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
+                return tg.initDataUnsafe.user.id;
             }
-        };
-
-        window.onload = function() {
-            applyLanguage();
-            loadHistory();
-            updateLimitDisplay();
-        };
-
-        function toggleLanguage() {
-            currentLang = currentLang === 'ru' ? 'en' : 'ru';
-            localStorage.setItem('app_lang', currentLang);
-            applyLanguage();
-            loadHistory(); // Перерисовать историю
+            return "guest"; // Заглушка на случай тестов в браузере компьютера
         }
 
-        function applyLanguage() {
-            const t = i18n[currentLang];
-            document.getElementById('lang-toggle').innerText = currentLang === 'ru' ? "🌐 EN" : "🌐 RU";
-            document.getElementById('lbl-title').innerText = t.title;
-            document.getElementById('tab-single').innerText = t.tabSingle;
-            document.getElementById('tab-express').innerText = t.tabExpress;
-            
-            if(!selectedFile) {
-                document.getElementById('upload-status').innerText = currentMode === 'single' ? t.uploadSingle : t.uploadExpress;
-            } else {
-                document.getElementById('upload-status').innerText = t.uploadDone;
-            }
-            
-            document.getElementById('send-btn').innerText = t.btnAnalyze;
-            document.getElementById('loader-text').innerText = t.loaderText;
-            document.getElementById('lbl-capper-choice').innerText = t.lblCapperChoice;
-            document.getElementById('lbl-value-odds').innerText = t.lblValueOdds;
-            document.getElementById('lbl-teams-form').innerText = t.lblTeamsForm;
-            document.getElementById('lbl-h2h-stats').innerText = t.lblH2hStats;
-            document.getElementById('lbl-final-verdict').innerText = t.lblFinalVerdict;
-            document.getElementById('lbl-exp-capper').innerText = t.lblExpCapper;
-            document.getElementById('lbl-exp-prob').innerText = t.lblExpProb;
-            document.getElementById('lbl-exp-prob-desc').innerText = t.lblExpProbDesc;
-            document.getElementById('lbl-exp-events').innerText = t.lblExpEvents;
-            document.getElementById('lbl-hist-title').innerText = t.lblHistTitle;
-            
-            document.querySelectorAll('.btn-reset').forEach(b => b.innerText = t.btnReset);
-            updateLimitDisplay();
-        }
+        // 1. ЗАГРУЗКА ЛИМИТОВ ПРИ СТАРТЕ СТРАНИЦЫ
+        async function loadUserData() {
+            const userId = getTelegramUserId();
+            const counterElement = document.getElementById("limits-counter");
+            const btn = document.getElementById("submit-btn");
 
-        function setMode(mode) {
-            currentMode = mode;
-            document.getElementById('tab-single').classList.toggle('active', mode === 'single');
-            document.getElementById('tab-express').classList.toggle('active', mode === 'express');
-            applyLanguage();
-            resetAnalyzer();
-        }
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/user?user_id=${userId}`);
+                const data = await response.json();
 
-        function updateLimitDisplay() {
-            fetch(`${BACKEND_URL}/api/get_limits?user_id=${USER_TELEGRAM_ID}`, { headers: { "ngrok-skip-browser-warning": "true" } })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    let val = data.left_today;
-                    // Если ответ на русском, переведем "из" для англ. версии
-                    if (currentLang === 'en' && typeof val === 'string') {
-                        val = val.replace('из', 'of');
-                    }
-                    document.getElementById('limit-display').innerHTML = i18n[currentLang].limitsText.replace('{val}', val);
-                }
-            });
-        }
-
-        function triggerSelect() { document.getElementById('file-input').click(); }
-
-        function handleFileSelect(event) {
-            selectedFile = event.target.files[0];
-            if (!selectedFile) return;
-            document.getElementById('upload-status').innerText = i18n[currentLang].uploadDone;
-            document.getElementById('send-btn').disabled = false;
-        }
-
-        function startFullAnalysis() {
-            if (!selectedFile) return;
-            
-            document.getElementById('result-layout-single').style.display = 'none';
-            document.getElementById('result-layout-express').style.display = 'none';
-            document.getElementById('upload-card').style.display = 'none';
-            document.getElementById('history-section').style.display = 'none';
-            document.getElementById('loader').style.display = 'block';
-
-            let formData = new FormData();
-            formData.append("image", selectedFile);
-
-            fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData })
-            .then(res => res.json())
-            .then(imgResult => {
-                if (imgResult.success) {
-                    const imageUrl = imgResult.data.url;
-                    const endpoint = currentMode === 'single' ? '/api/analyze' : '/api/analyze_express';
+                if (data.success) {
+                    counterElement.innerText = `Доступно запросов на сегодня: ${data.requests_left} из 3`;
                     
-                    return fetch(`${BACKEND_URL}${endpoint}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json", "ngrok-skip-browser-warning": "true" },
-                        body: JSON.stringify({ image_url: imageUrl, user_id: USER_TELEGRAM_ID, lang: currentLang }) // 🌟 ПЕРЕДАЕМ ТЕКУЩИЙ ЯЗЫК НА СЕРВЕР
-                    });
-                } else throw new Error("Photo hosting error");
-            })
-            .then(res => {
-                if (!res.ok) return res.json().then(errData => { throw new Error(errData.error || "Server error"); });
-                return res.json();
-            })
-            .then(backendResult => {
-                document.getElementById('loader').style.display = 'none';
-                if (!backendResult.success) return;
-                const t = i18n[currentLang];
-
-                if (currentMode === 'single') {
-                    const prediction = backendResult.data;
-                    document.getElementById('res-match').innerText = prediction.match;
-                    document.getElementById('res-sport').innerText = prediction.sport;
-                    document.getElementById('res-tournament').innerText = prediction.tournament;
-                    document.getElementById('res-outcome').innerText = prediction.outcome;
-                    document.getElementById('res-form').innerText = prediction.form;
-                    document.getElementById('res-stats').innerText = prediction.stats;
-                    document.getElementById('res-reason').innerText = prediction.reason;
-                    document.getElementById('res-percent').innerText = prediction.percent + "%";
-                    document.getElementById('res-circle').style.strokeDasharray = `${prediction.percent}, 100`;
-                    
-                    if (prediction.odds_analysis && typeof prediction.odds_analysis === 'object') {
-                        document.getElementById('res-odds').innerHTML = `
-                            <div><b>${t.oddsVerdict}:</b> ${prediction.odds_analysis.verdict || '-'}</div>
-                            <div style="margin-top: 4px;"><b>${t.oddsValue}:</b> ${prediction.odds_analysis.value_score || '0'}/10 | <b>${t.oddsMargin}:</b> ${prediction.odds_analysis.margin_estimate || '0%'}</div>
-                        `;
-                    } else {
-                        document.getElementById('res-odds').innerText = prediction.odds_analysis || '-';
+                    if (data.requests_left === 0) {
+                        btn.disabled = true;
+                        btn.innerText = "Лимит на сегодня исчерпан";
                     }
-
-                    document.getElementById('result-layout-single').style.display = 'block';
                 } else {
-                    const express = backendResult.data;
-                    document.getElementById('exp-total-verdict').innerText = express.total_verdict;
-                    document.getElementById('exp-percent').innerText = express.total_percent + "%";
-                    document.getElementById('exp-circle').style.strokeDasharray = `${express.total_percent}, 100`;
+                    counterElement.style.color = "#ff4444";
+                    counterElement.innerText = "⚠️ Не удалось загрузить лимиты";
+                }
+            } catch (error) {
+                console.error("Ошибка:", error);
+                counterElement.style.color = "#ff4444";
+                counterElement.innerText = "🔌 Сервер аналитики временно недоступен";
+            }
+        }
+
+        // 2. ОТПРАВКА ДАННЫХ ПРИ НАЖАТИИ КНОПКИ
+        async function sendDataToProcess() {
+            const userId = getTelegramUserId();
+            const textInput = document.getElementById("text-input").value;
+            const resultBlock = document.getElementById("result-block");
+            const counterElement = document.getElementById("limits-counter");
+            const btn = document.getElementById("submit-btn");
+
+            if (!textInput.trim()) {
+                alert("Пожалуйста, введите данные для анализа!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Анализ данных ИИ...";
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/process`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        text: textInput
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 403) {
+                    alert(data.error);
+                    counterElement.innerText = `Доступно запросов на сегодня: 0 из 3`;
+                    btn.innerText = "Лимит на сегодня исчерпан";
+                    return;
+                }
+
+                if (data.success) {
+                    resultBlock.style.display = "block";
+                    resultBlock.innerText = data.result;
+
+                    // Обновляем счетчик на экране новым значением из бэкенда
+                    counterElement.innerText = `Доступно запросов на сегодня: ${data.requests_left} из 3`;
                     
-                    const listContainer = document.getElementById('express-matches-list');
-                    listContainer.innerHTML = "";
-                    express.matches.forEach(m => {
-                        listContainer.innerHTML += `
-                            <div class="express-match-card">
-                                <div class="exp-title">${m.sport} ${m.match}</div>
-                                <div class="exp-outcome">${t.expChoice}: ${m.outcome}</div>
-                                <div class="exp-verdict">${m.verdict}</div>
-                            </div>
-                        `;
-                    });
-                    document.getElementById('result-layout-express').style.display = 'block';
+                    if (data.requests_left === 0) {
+                        btn.innerText = "Лимит на сегодня исчерпан";
+                    } else {
+                        btn.disabled = false;
+                        btn.innerText = "Обработать данные ИИ";
+                    }
+                } else {
+                    alert("Ошибка при анализе на стороне сервера.");
+                    btn.disabled = false;
+                    btn.innerText = "Обработать данные ИИ";
                 }
-                loadHistory();
-                updateLimitDisplay();
-            })
-            .catch(err => {
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message);
-                resetAnalyzer();
-            });
+            } catch (error) {
+                console.error(error);
+                alert("Не удалось отправить данные на сервер.");
+                btn.disabled = false;
+                btn.innerText = "Обработать данные ИИ";
+            }
         }
 
-        function loadHistory() {
-            fetch(`${BACKEND_URL}/api/history?user_id=${USER_TELEGRAM_ID}`, { headers: { "ngrok-skip-browser-warning": "true" } })
-            .then(res => res.json())
-            .then(result => {
-                const t = i18n[currentLang];
-                if (result.success) {
-                    const container = document.getElementById('history-list');
-                    container.innerHTML = result.history.length === 0 ? `<div style="text-align:center; color:#6c7883; font-size:13px; padding:10px;">${t.historyEmpty}</div>` : "";
-                    result.history.forEach(item => {
-                        container.innerHTML += `
-                            <div class="history-item">
-                                <div class="hist-info">
-                                    <div class="hist-match">${item.match_name}</div>
-                                    <div class="hist-meta">${item.date} • ${item.tournament || item.sport}</div>
-                                    <div class="hist-outcome">${t.histChoice}: <b>${item.outcome}</b></div>
-                                </div>
-                                <div class="hist-badge">${t.histConfidence}<br><span style="font-size:13px;">${item.percent}%</span></div>
-                            </div>
-                        `;
-                    });
-                }
-            });
-        }
-
-        function resetAnalyzer() {
-            document.getElementById('result-layout-single').style.display = 'none';
-            document.getElementById('result-layout-express').style.display = 'none';
-            document.getElementById('upload-card').style.display = 'block';
-            document.getElementById('history-section').style.display = currentMode === 'single' ? 'block' : 'none';
-            document.getElementById('send-btn').disabled = true;
-            applyLanguage();
-            selectedFile = null;
-            loadHistory();
-            updateLimitDisplay();
-        }
+        // Автозапуск загрузки лимитов при открытии WebApp
+        window.onload = loadUserData;
     </script>
 </body>
 </html>
