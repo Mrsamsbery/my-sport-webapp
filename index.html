@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Ставки Анализ</title>
+    <title>Ставки Ai анализ</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #11141a;
+            background-color: #0b0e14;
             color: #ffffff;
             margin: 0;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -19,168 +19,316 @@
 
         .container {
             width: 100%;
-            max-width: 400px;
+            max-width: 430px;
             box-sizing: border-box;
         }
 
-        .header {
-            text-align: center;
+        /* Вкладки переключения режимов */
+        .tabs {
+            display: flex;
+            background-color: #161b26;
+            padding: 4px;
+            border-radius: 12px;
             margin-bottom: 20px;
+            border: 1px solid #232a3b;
         }
 
-        .counter-box {
-            background-color: #1b202c;
-            padding: 12px 15px;
-            border-radius: 12px;
+        .tab {
+            flex: 1;
             text-align: center;
-            font-weight: 500;
-            margin-bottom: 20px;
+            padding: 10px;
             font-size: 14px;
-            border: 1px solid #2c354a;
+            font-weight: bold;
+            color: #7d8b9b;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            background-color: #212836;
             color: #00ff88;
+            border: 1px solid #2e394e;
         }
 
-        textarea {
-            width: 100%;
-            height: 120px;
-            padding: 12px;
-            border-radius: 12px;
-            border: 1px solid #2c354a;
-            background-color: #1b202c;
-            color: #ffffff;
-            box-sizing: border-box;
-            resize: none;
-            font-size: 16px;
-            margin-bottom: 15px;
+        /* Область выбора скриншота */
+        .upload-zone {
+            background-color: #131924;
+            border: 2px dashed #2c374e;
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: border-color 0.2s;
         }
 
-        textarea:focus {
-            outline: none;
+        .upload-zone:hover {
             border-color: #00ff88;
         }
 
-        button {
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: #a0aec0;
+        }
+
+        .counter-box {
+            text-align: center;
+            font-size: 13px;
+            color: #718096;
+            margin-bottom: 25px;
+        }
+
+        .counter-box span {
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* Основная кнопка действия */
+        .action-btn {
             width: 100%;
-            padding: 15px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 14px;
             border: none;
-            background-color: #00ff88;
-            color: #11141a;
+            background-color: #1a2233;
+            color: #4a5568;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            transition: opacity 0.2s;
+            margin-bottom: 25px;
+            transition: all 0.2s;
         }
 
-        button:disabled {
-            background-color: #2c354a;
-            color: #666666;
-            cursor: not-allowed;
+        .action-btn.ready {
+            background-color: #00ff88;
+            color: #0b0e14;
         }
 
-        .result-box {
-            margin-top: 20px;
+        /* Стили вывода блоков аналитики (как на твоем скриншоте) */
+        .analysis-container {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .card {
+            background-color: #131924;
+            border-radius: 16px;
             padding: 15px;
-            background-color: #1b202c;
-            border: 1px solid #2c354a;
-            border-radius: 12px;
-            min-height: 50px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-size: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #1e2636;
+        }
+
+        .card-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #a0aec0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .sport-badge {
+            background-color: #1c2436;
+            color: #00ff88;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .match-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .league-name {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .pick-text {
+            font-size: 20px;
+            font-weight: bold;
+            color: #00ff88;
+            border-left: 4px solid #00ff88;
+            padding-left: 10px;
+        }
+
+        .value-card { border-left: 4px solid #b76eff; }
+        .value-card .card-title { color: #b76eff; }
+
+        .verdict-row { font-size: 15px; margin-bottom: 6px; }
+        .verdict-row span { font-weight: bold; }
+
+        .text-block {
+            font-size: 14px;
+            color: #e2e8f0;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        /* Круговой индикатор уверенности */
+        .verdict-block {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .circle-progress {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .circle-progress canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .circle-text {
+            position: absolute;
             width: 100%;
-            box-sizing: border-box;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <div class="header">
-            <h2>AI Анализатор Ставок</h2>
+        <div class="tabs">
+            <div id="tab-single" class="tab active" onclick="setMode('single')">⚽ Одиночная ставка</div>
+            <div id="tab-express" class="tab" onclick="setMode('express')">🚂 Разбор Экспресса</div>
         </div>
+
+        <div class="upload-zone" onclick="document.getElementById('file-field').click()">
+            <div class="upload-icon">📸💥</div>
+            <div id="upload-label" class="upload-text">Выбрать скриншот ординара</div>
+            <input type="file" id="file-field" accept="image/*" style="display: none;" onchange="handleFileSelect(event)">
+        </div>
+
+        <button id="action-button" class="action-btn" disabled onclick="sendToOcrAndAnalysis()">Проанализировать ставку</button>
 
         <div id="limits-counter" class="counter-box">
-            🔄 Получение лимитов с сервера...
+            Осталось бесплатных прогнозов на сегодня: <span id="req-left">...</span>
         </div>
 
-        <textarea id="text-input" placeholder="Вставьте текст купона или данные матча..."></textarea>
+        <div id="analysis-box" class="analysis-container">
+            
+            <div class="card">
+                <span id="res-sport" class="sport-badge">Теннис 🎾</span>
+                <div id="res-match" class="match-name">---</div>
+                <div id="res-league" class="league-name">---</div>
+            </div>
 
-        <button id="submit-btn" onclick="sendDataToProcess()">Обработать данные ИИ</button>
+            <div class="card">
+                <div class="card-title">🎯 Выбор каппера</div>
+                <div id="res-pick" class="pick-text">---</div>
+            </div>
 
-        <div id="result-block" class="result-box" style="display: none;"></div>
+            <div class="card value-card">
+                <div class="card-title">📊 Валуйность коэффициентов</div>
+                <div class="verdict-row">Вердикт: <span id="res-value">---</span></div>
+                <div class="verdict-row">Выгода: <span id="res-profit">---</span> | Оценка маржи: <span id="res-margin">---</span></div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📈 Форма команд и тренды</div>
+                <div id="res-trends" class="text-block">---</div>
+                
+                <div class="card-title">📊 Аналитика личных встреч</div>
+                <div id="res-h2h" class="text-block">---</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🧠 Итоговый вердикт и уверенность</div>
+                <div class="verdict-block">
+                    <div class="circle-progress">
+                        <canvas id="circle-canvas" width="80" height="80"></canvas>
+                        <div id="circle-pct" class="circle-text">0%</div>
+                    </div>
+                    <div id="res-final" class="text-block" style="flex: 1; margin: 0;">---</div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script>
-        // Инициализируем WebApp Телеграма
         const tg = window.Telegram.WebApp;
         tg.ready();
-        tg.expand(); 
+        tg.expand();
 
-        // Актуальная ссылка от ngrok
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev"; 
+        let currentMode = "single";
+        let base64Image = "";
 
-        // Получаем уникальный Telegram ID пользователя
         function getTelegramUserId() {
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                return tg.initDataUnsafe.user.id;
-            }
-            return "guest";
+            return (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : "guest";
         }
 
-        // 1. ЗАГРУЗКА ЛИМИТОВ ПРИ СТАРТЕ СТРАНИЦЫ
-        async function loadUserData() {
-            const userId = getTelegramUserId();
-            const counterElement = document.getElementById("limits-counter");
-            const btn = document.getElementById("submit-btn");
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById("tab-single").classList.toggle("active", mode === 'single');
+            document.getElementById("tab-express").classList.toggle("active", mode === 'express');
+            document.getElementById("upload-label").innerText = mode === 'single' ? "Выбрать скриншот ординара" : "Выбрать скриншот экспресса";
+        }
 
+        // Загрузка лимитов при открытии
+        async function loadLimits() {
             try {
-                // Добавлен заголовок для обхода предупреждения ngrok
-                const response = await fetch(`${BACKEND_URL}/api/user?user_id=${userId}`, {
+                const response = await fetch(`${BACKEND_URL}/api/user?user_id=${getTelegramUserId()}`, {
                     method: "GET",
-                    headers: {
-                        "ngrok-skip-browser-warning": "true"
-                    }
+                    headers: { "ngrok-skip-browser-warning": "true" }
                 });
                 const data = await response.json();
-
                 if (data.success) {
-                    counterElement.style.color = "#00ff88";
-                    counterElement.innerText = `Доступно запросов на сегодня: ${data.requests_left} из 3`;
-                    
-                    if (data.requests_left === 0) {
-                        btn.disabled = true;
-                        btn.innerText = "Лимит на сегодня исчерпан";
-                    }
-                } else {
-                    counterElement.style.color = "#ff4444";
-                    counterElement.innerText = "⚠️ Не удалось загрузить лимиты";
+                    document.getElementById("req-left").innerText = data.requests_left === 999 ? "∞ (Безлимит)" : `${data.requests_left}`;
                 }
-            } catch (error) {
-                console.error("Ошибка:", error);
-                counterElement.style.color = "#ff4444";
-                counterElement.innerText = "🔌 Сервер аналитики временно недоступен";
+            } catch (e) {
+                document.getElementById("req-left").innerText = "ошибка подключения";
             }
         }
 
-        // 2. ОТПРАВКА ДАННЫХ ПРИ НАЖАТИИ КНОПКИ
-        async function sendDataToProcess() {
-            const userId = getTelegramUserId();
-            const textInput = document.getElementById("text-input").value;
-            const resultBlock = document.getElementById("result-block");
-            const counterElement = document.getElementById("limits-counter");
-            const btn = document.getElementById("submit-btn");
+        // Обработка выбора файла и конвертация в Base64
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
 
-            if (!textInput.trim()) {
-                alert("Пожалуйста, введите данные для анализа!");
-                return;
-            }
+            document.getElementById("upload-label").innerText = `Выбран файл: ${file.name}`;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                base64Image = e.target.result;
+                const btn = document.getElementById("action-button");
+                btn.removeAttribute("disabled");
+                btn.classList.add("ready");
+            };
+            reader.readAsDataURL(file);
+        }
 
-            btn.disabled = true;
-            btn.innerText = "Анализ данных ИИ...";
+        // Отправка скриншота на OCR и Анализ
+        async function sendToOcrAndAnalysis() {
+            const btn = document.getElementById("action-button");
+            btn.setAttribute("disabled", "true");
+            btn.innerText = "Обработка купона ИИ...";
 
             try {
-                // Добавлен заголовок для обхода предупреждения ngrok
                 const response = await fetch(`${BACKEND_URL}/api/process`, {
                     method: "POST",
                     headers: {
@@ -188,8 +336,9 @@
                         "ngrok-skip-browser-warning": "true"
                     },
                     body: JSON.stringify({
-                        user_id: userId,
-                        text: textInput
+                        user_id: getTelegramUserId(),
+                        mode: currentMode,
+                        image: base64Image
                     })
                 });
 
@@ -197,37 +346,61 @@
 
                 if (response.status === 403) {
                     alert(data.error);
-                    counterElement.innerText = `Доступно запросов на сегодня: 0 из 3`;
-                    btn.innerText = "Лимит на сегодня исчерпан";
                     return;
                 }
 
-                if (data.success) {
-                    resultBlock.style.display = "block";
-                    resultBlock.innerText = data.result;
-
-                    counterElement.innerText = `Доступно запросов на сегодня: ${data.requests_left} из 3`;
+                if (data.success && data.analysis) {
+                    const an = data.analysis;
+                    document.getElementById("analysis-box").style.display = "block";
                     
-                    if (data.requests_left === 0) {
-                        btn.innerText = "Лимит на сегодня исчерпан";
-                    } else {
-                        btn.disabled = false;
-                        btn.innerText = "Обработать данные ИИ";
-                    }
-                } else {
-                    alert("Ошибка при анализе на стороне сервера.");
-                    btn.disabled = false;
-                    btn.innerText = "Обработать данные ИИ";
+                    document.getElementById("res-sport").innerText = an.sport;
+                    document.getElementById("res-match").innerText = an.match_title;
+                    document.getElementById("res-league").innerText = an.league;
+                    document.getElementById("res-pick").innerText = an.capper_pick;
+                    document.getElementById("res-value").innerText = an.value_verdict;
+                    document.getElementById("res-profit").innerText = an.value_profit;
+                    document.getElementById("res-margin").innerText = an.margin_eval;
+                    document.getElementById("res-trends").innerText = an.form_trends;
+                    document.getElementById("res-h2h").innerText = an.head_to_head;
+                    document.getElementById("res-final").innerText = an.final_verdict;
+
+                    // Отрисовка круглого индикатора уверенности
+                    drawConfidenceCircle(an.confidence_percent);
+                    document.getElementById("req-left").innerText = data.requests_left;
                 }
-            } catch (error) {
-                console.error(error);
-                alert("Не удалось отправить данные на сервер.");
-                btn.disabled = false;
-                btn.innerText = "Обработать данные ИИ";
+            } catch (err) {
+                alert("Ошибка связи с сервером аналитики.");
+            } finally {
+                btn.removeAttribute("disabled");
+                btn.innerText = "Проанализировать ставку";
             }
         }
 
-        window.onload = loadUserData;
+        // Функция рисования круга уверенности через HTML5 Canvas
+        function drawConfidenceCircle(percent) {
+            const canvas = document.getElementById("circle-canvas");
+            const ctx = canvas.getContext("2d");
+            document.getElementById("circle-pct").innerText = `${percent}%`;
+
+            ctx.clearRect(0, 0, 80, 80);
+            
+            // Серый задний фон круга
+            ctx.beginPath();
+            ctx.arc(40, 40, 35, 0, 2 * Math.PI);
+            ctx.strokeStyle = "#1c2436";
+            ctx.lineWidth = 6;
+            ctx.stroke();
+
+            // Зеленая дуга прогресса уверенности
+            ctx.beginPath();
+            ctx.arc(40, 40, 35, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * (percent / 100)));
+            ctx.strokeStyle = "#00ff88";
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
+            ctx.stroke();
+        }
+
+        window.onload = loadLimits;
     </script>
 </body>
 </html>
