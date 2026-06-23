@@ -15,6 +15,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
         .container {
@@ -96,9 +97,13 @@
 
         .counter-box {
             text-align: center;
-            font-size: 13px;
+            font-size: 14px;
             color: #718096;
             margin-bottom: 25px;
+            background: #131924;
+            padding: 12px;
+            border-radius: 12px;
+            border: 1px solid #1e2636;
         }
 
         .counter-box span {
@@ -111,7 +116,7 @@
             padding: 16px;
             border-radius: 14px;
             border: none;
-            background-color: #1a2233;
+            background-color: #161c26;
             color: #4a5568;
             font-size: 16px;
             font-weight: bold;
@@ -123,11 +128,82 @@
         .action-btn.ready {
             background-color: #00ff88;
             color: #0b0e14;
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
         }
 
-        .analysis-container {
+        .overlay-loader {
             display: none;
-            margin-top: 10px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(11, 14, 20, 0.95);
+            z-index: 10000;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .spinner {
+            width: 70px;
+            height: 70px;
+            border: 5px solid #161b26;
+            border-top: 5px solid #00ff88;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 25px;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.1);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loader-status {
+            font-size: 18px;
+            font-weight: 500;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .loader-subtext {
+            font-size: 14px;
+            color: #718096;
+            text-align: center;
+        }
+
+        .modal-result {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #0b0e14;
+            z-index: 9999;
+            overflow-y: auto;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #1e2636;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #ffffff;
         }
 
         .card {
@@ -220,11 +296,26 @@
             font-weight: bold;
             font-size: 16px;
         }
+
+        .close-btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            background-color: #161c26;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            margin-bottom: 30px;
+            border: 1px solid #232a3b;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="main-layout">
         <div class="tabs">
             <div id="tab-single" class="tab active" onclick="setMode('single')">⚽ Одиночная ставка</div>
             <div id="tab-express" class="tab" onclick="setMode('express')">🚂 Разбор Экспресса</div>
@@ -241,46 +332,58 @@
         <button id="action-button" class="action-btn" disabled onclick="sendToOcrAndAnalysis()">Проанализировать ставку</button>
 
         <div id="limits-counter" class="counter-box">
-            Осталось бесплатных прогнозов на сегодня: <span id="req-left">...</span>
+            Загрузка лимитов...
+        </div>
+    </div>
+
+    <div id="loader-screen" class="overlay-loader">
+        <div class="spinner"></div>
+        <div id="loader-status-text" class="loader-status">Загрузка скриншота...</div>
+        <div id="loader-sub-text" class="loader-subtext"></div>
+    </div>
+
+    <div id="result-modal" class="modal-result">
+        <div class="modal-header">
+            <div class="modal-title">🤖 Анализ ИИ готов</div>
         </div>
 
-        <div id="analysis-box" class="analysis-container">
-            <div class="card">
-                <span id="res-sport" class="sport-badge">Теннис 🎾</span>
-                <div id="res-match" class="match-name">---</div>
-                <div id="res-league" class="league-name">---</div>
-            </div>
+        <div class="card">
+            <span id="res-sport" class="sport-badge">ФУТБОЛ ⚽</span>
+            <div id="res-match" class="match-name">---</div>
+            <div id="res-league" class="league-name">---</div>
+        </div>
 
-            <div class="card">
-                <div class="card-title">🎯 Выбор каппера</div>
-                <div id="res-pick" class="pick-text">---</div>
-            </div>
+        <div class="card">
+            <div class="card-title">🎯 Выбор каппера</div>
+            <div id="res-pick" class="pick-text">---</div>
+        </div>
 
-            <div class="card value-card">
-                <div class="card-title">📊 Валуйность коэффициентов</div>
-                <div class="verdict-row">Вердикт: <span id="res-value">---</span></div>
-                <div class="verdict-row">Выгода: <span id="res-profit">---</span> | Оценка маржи: <span id="res-margin">---</span></div>
-            </div>
+        <div class="card value-card">
+            <div class="card-title">📊 Валуйность коэффициентов</div>
+            <div class="verdict-row">Вердикт: <span id="res-value">---</span></div>
+            <div class="verdict-row">Выгода: <span id="res-profit">---</span> | Оценка маржи: <span id="res-margin">---</span></div>
+        </div>
 
-            <div class="card">
-                <div class="card-title">📈 Форма команд и тренды</div>
-                <div id="res-trends" class="text-block">---</div>
-                
-                <div class="card-title">📊 Аналитика личных встреч</div>
-                <div id="res-h2h" class="text-block">---</div>
-            </div>
+        <div class="card">
+            <div class="card-title">📈 Форма команд и тренды</div>
+            <div id="res-trends" class="text-block">---</div>
+            
+            <div class="card-title">📊 Аналитика личных встреч</div>
+            <div id="res-h2h" class="text-block">---</div>
+        </div>
 
-            <div class="card">
-                <div class="card-title">🧠 Итоговый вердикт и уверенность</div>
-                <div class="verdict-block">
-                    <div class="circle-progress">
-                        <canvas id="circle-canvas" width="80" height="80"></canvas>
-                        <div id="circle-pct" class="circle-text">0%</div>
-                    </div>
-                    <div id="res-final" class="text-block" style="flex: 1; margin: 0;">---</div>
+        <div class="card">
+            <div class="card-title">🧠 Итоговый вердикт и уверенность</div>
+            <div class="verdict-block">
+                <div class="circle-progress">
+                    <canvas id="circle-canvas" width="80" height="80"></canvas>
+                    <div id="circle-pct" class="circle-text">0%</div>
                 </div>
+                <div id="res-final" class="text-block" style="flex: 1; margin: 0;">---</div>
             </div>
         </div>
+
+        <button class="close-btn" onclick="closeModal()">← Назад к панели</button>
     </div>
 
     <script>
@@ -293,6 +396,7 @@
         
         let currentMode = "single";
         let rawFile = null;
+        let isUserVip = false; // Глобальный флаг статуса
 
         function getTelegramUserId() {
             return (tg.initDataUnsafe && tg.initDataUnsafe.user) ? tg.initDataUnsafe.user.id : "guest";
@@ -315,11 +419,18 @@
                     headers: { "ngrok-skip-browser-warning": "true" }
                 });
                 const data = await response.json();
+                
+                const counterBox = document.getElementById("limits-counter");
                 if (data.success) {
-                    document.getElementById("req-left").innerText = data.requests_left === 999 ? "∞ (Безлимит)" : `${data.requests_left}`;
+                    isUserVip = data.is_vip; // Фиксируем статус
+                    if (isUserVip) {
+                        counterBox.innerHTML = `Статус: 👑 <span>VIP (Безлимит)</span>`;
+                    } else {
+                        counterBox.innerHTML = `Осталось бесплатных прогнозов: <span id="req-left">${data.requests_left}</span>`;
+                    }
                 }
             } catch (e) {
-                document.getElementById("req-left").innerText = "ошибка";
+                document.getElementById("limits-counter").innerText = "Ошибка загрузки лимитов.";
             }
         }
 
@@ -336,10 +447,19 @@
             btn.classList.add("ready");
         }
 
+        function updateLoaderText(status, subtext) {
+            document.getElementById("loader-status-text").innerText = status;
+            document.getElementById("loader-sub-text").innerText = subtext;
+        }
+
+        function closeModal() {
+            document.getElementById("result-modal").style.display = "none";
+        }
+
         async function sendToOcrAndAnalysis() {
-            const btn = document.getElementById("action-button");
-            btn.setAttribute("disabled", "true");
-            btn.innerText = "Загрузка скриншота...";
+            const loaderScreen = document.getElementById("loader-screen");
+            loaderScreen.style.display = "flex";
+            updateLoaderText("Загрузка скриншота...", "Отправляем купон на сервер картинок ImgBB");
 
             let shortImageUrl = "";
 
@@ -355,20 +475,22 @@
                 
                 if (imgbbData.success) {
                     shortImageUrl = imgbbData.data.url;
+                    updateLoaderText("Скриншот принят купоном!", "Файл распознан, передаем данные в ИИ");
                 } else {
-                    alert("Не удалось сохранить скриншот на сервере картинок.");
-                    btn.removeAttribute("disabled");
-                    btn.innerText = "Проанализировать ставку";
+                    loaderScreen.style.display = "none";
+                    alert("Не удалось сохранить скриншот.");
                     return;
                 }
             } catch (err) {
+                loaderScreen.style.display = "none";
                 alert("Ошибка загрузки файла на обменник.");
-                btn.removeAttribute("disabled");
-                btn.innerText = "Проанализировать ставку";
                 return;
             }
 
-            btn.innerText = "Обработка купона ИИ...";
+            setTimeout(() => {
+                updateLoaderText("Бот анализирует матч...", "Формируем итоговый прогноз ИИ");
+            }, 1200);
+
             try {
                 const response = await fetch(`${BACKEND_URL}/api/process`, {
                     method: "POST",
@@ -386,18 +508,18 @@
                 const data = await response.json();
 
                 if (response.status === 403) {
+                    loaderScreen.style.display = "none";
                     alert(data.error);
                     return;
                 }
 
                 if (data.success && data.analysis) {
                     const an = data.analysis;
-                    document.getElementById("analysis-box").style.display = "block";
                     
                     document.getElementById("res-sport").innerText = an.sport;
                     document.getElementById("res-match").innerText = an.match_title;
                     document.getElementById("res-league").innerText = an.league;
-                    document.getElementById("res-pick").innerText = an.capper_pick;
+                    document.getElementById("res-pick").innerText = an.pick_text || an.capper_pick;
                     document.getElementById("res-value").innerText = an.value_verdict;
                     document.getElementById("res-profit").innerText = an.value_profit;
                     document.getElementById("res-margin").innerText = an.margin_eval;
@@ -406,13 +528,19 @@
                     document.getElementById("res-final").innerText = an.final_verdict;
 
                     drawConfidenceCircle(an.confidence_percent);
-                    document.getElementById("req-left").innerText = data.requests_left;
+                    
+                    // Безопасное обновление счетчика без текстовых конфликтов
+                    const counterBox = document.getElementById("limits-counter");
+                    if (!isUserVip) {
+                        counterBox.innerHTML = `Осталось бесплатных прогнозов: <span>${data.requests_left}</span>`;
+                    }
+
+                    loaderScreen.style.display = "none";
+                    document.getElementById("result-modal").style.display = "block";
                 }
             } catch (err) {
+                loaderScreen.style.display = "none";
                 alert("Ошибка связи с сервером аналитики.");
-            } finally {
-                btn.removeAttribute("disabled");
-                btn.innerText = "Проанализировать ставку";
             }
         }
 
