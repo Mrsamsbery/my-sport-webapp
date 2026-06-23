@@ -46,7 +46,6 @@
             margin: 0;
         }
 
-        /* Зона загрузки / Иконка с превью */
         .upload-zone {
             background-color: var(--card-bg);
             border: 2px dashed var(--border-color);
@@ -73,7 +72,6 @@
             font-weight: 500;
         }
         
-        /* Превью картинки прямо внутри иконки загрузки */
         #preview-img {
             display: none;
             width: 90px;
@@ -109,7 +107,6 @@
             cursor: not-allowed;
         }
 
-        /* Интерактивный лоадер с логической цепочкой */
         .loader-container {
             display: none;
             text-align: center;
@@ -145,7 +142,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Карточки вывода результатов */
         .results-panel {
             display: none;
             margin-top: 24px;
@@ -239,8 +235,8 @@
 
     <div class="loader-container" id="loader">
         <div class="spinner"></div>
-        <div class="loader-chain" id="loader-chain-text">Получен скриншот купона...</div>
-        <div class="loader-subtext">Нейросеть рассчитывает математическую модель</div>
+        <div class="loader-chain" id="loader-chain-text">Оптимизация изображения...</div>
+        <div class="loader-subtext">Нейросеть готовит данные к отправке</div>
     </div>
 
     <div class="error-card" id="error-block"></div>
@@ -291,7 +287,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ======= ССЫЛКА НА ТВОЙ СЕРВЕР =======
+        // ======= ССЫЛКА НА ТВОЙ СЕРВЕР NGROK =======
         const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev";
         
         let selectedFile = null;
@@ -325,7 +321,6 @@
             document.getElementById("file-input").click();
         }
 
-        // Подтягивание фото в иконку купона (Превью)
         function handleFileSelect(event) {
             const files = event.target.files;
             if (files.length > 0) {
@@ -343,11 +338,10 @@
             }
         }
 
-        // Эффект думающей аишки — последовательный перебор шагов логической цепочки
         function runThinkingChain() {
             const chainText = document.getElementById("loader-chain-text");
             const steps = [
-                "Получен скриншот купона... 📥",
+                "Загрузка купона в ИИ среду... 📥",
                 "ИИ считывает текст и параметры ставки... 🔍",
                 "Сканирование базы данных матчей... 💾",
                 "Анализ формы команд и личных встреч... 📊",
@@ -369,7 +363,6 @@
             return interval;
         }
 
-        // Функция перевода картинки в текст (Base64) и отправки чистого JSON текста
         async function startAnalysis() {
             if (!selectedFile) return;
 
@@ -385,69 +378,70 @@
 
             const thinkingInterval = runThinkingChain();
 
-            // Читаем файл как Base64 строку
-            const reader = new FileReader();
-            reader.readAsDataURL(selectedFile);
-            reader.onload = async function () {
-                const base64String = reader.result;
+            try {
+                // Шлем картинку на ImgBB через свежий рабочий ключ
+                const imgData = new FormData();
+                imgData.append("image", selectedFile);
 
-                try {
-                    // Отправляем строго текстовый JSON, защищенный от сетевых сбоев
-                    const response = await fetch(`${BACKEND_URL}/api/process/`, {
-                        method: "POST",
-                        headers: { 
-                            "Content-Type": "application/json",
-                            "ngrok-skip-browser-warning": "true"
-                        },
-                        body: JSON.stringify({
-                            user_id: String(userId),
-                            mode: "single",
-                            image_base64: base64String
-                        })
-                    });
+                const imgbbResponse = await fetch("https://api.imgbb.com/1/upload?key=e1645e777491df131b790d9703c62f27", {
+                    method: "POST",
+                    body: imgData
+                });
 
-                    if (!response.ok) {
-                        throw new Error("Сервер вернул ошибку при обработке JSON.");
-                    }
+                const imgbbData = await imgbbResponse.json();
+                if (!imgbbData.success) {
+                    throw new Error("Сбой оптимизации скриншота на стороне хостинга.");
+                }
 
-                    const data = await response.json();
+                // Получаем ультра-легкую прямую ссылку
+                const directLink = imgbbData.data.url;
 
-                    if (data.success && data.analysis) {
-                        // Раскладываем данные по твоим пунктам
-                        document.getElementById("ui-sport").innerText = data.analysis.sport || "⚽ Ставки";
-                        document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч";
-                        document.getElementById("ui-league").innerText = data.analysis.league || "Чемпионат";
-                        document.getElementById("ui-capper-pick").innerText = data.analysis.capper_pick || "-";
-                        document.getElementById("ui-value-verdict").innerText = data.analysis.value_verdict || "-";
-                        document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "-";
-                        document.getElementById("ui-margin-eval").innerText = data.analysis.margin_eval || "-";
-                        document.getElementById("ui-form-trends").innerText = data.analysis.form_trends || "-";
-                        document.getElementById("ui-head-to-head").innerText = data.analysis.head_to_head || "-";
-                        document.getElementById("ui-final-verdict").innerText = data.analysis.final_verdict || "-";
-                        document.getElementById("ui-confidence-percent").innerText = (data.analysis.confidence_percent || "80") + "%";
+                // Передаем эту ссылку на наш Flask сервер легким JSON-пакетом
+                const response = await fetch(`${BACKEND_URL}/api/process/`, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "true"
+                    },
+                    body: JSON.stringify({
+                        user_id: String(userId),
+                        mode: "single",
+                        image_url: directLink
+                    })
+                });
 
-                        clearInterval(thinkingInterval);
-                        loader.style.display = "none";
-                        resultsPanel.style.display = "block";
-                        fetchUserLimits();
-                    }
+                if (!response.ok) {
+                    throw new Error("Сервер не смог вернуть аналитику по купону.");
+                }
 
-                } catch (err) {
+                const data = await response.json();
+
+                if (data.success && data.analysis) {
+                    document.getElementById("ui-sport").innerText = data.analysis.sport || "⚽ Ставки";
+                    document.getElementById("ui-match-title").innerText = data.analysis.match_title || "Матч";
+                    document.getElementById("ui-league").innerText = data.analysis.league || "Чемпионат";
+                    document.getElementById("ui-capper-pick").innerText = data.analysis.capper_pick || "-";
+                    document.getElementById("ui-value-verdict").innerText = data.analysis.value_verdict || "-";
+                    document.getElementById("ui-value-profit").innerText = data.analysis.value_profit || "-";
+                    document.getElementById("ui-margin-eval").innerText = data.analysis.margin_eval || "-";
+                    document.getElementById("ui-form-trends").innerText = data.analysis.form_trends || "-";
+                    document.getElementById("ui-head-to-head").innerText = data.analysis.head_to_head || "-";
+                    document.getElementById("ui-final-verdict").innerText = data.analysis.final_verdict || "-";
+                    document.getElementById("ui-confidence-percent").innerText = (data.analysis.confidence_percent || "80") + "%";
+
                     clearInterval(thinkingInterval);
                     loader.style.display = "none";
-                    errorBlock.innerText = "Ошибка: " + err.message;
-                    errorBlock.style.display = "block";
-                    analyzeBtn.disabled = false;
+                    resultsPanel.style.display = "block";
+                    fetchUserLimits();
                 }
-            };
-            
-            reader.onerror = function (error) {
+
+            } catch (err) {
                 clearInterval(thinkingInterval);
                 loader.style.display = "none";
-                errorBlock.innerText = "Ошибка чтения файла на телефоне.";
+                errorBlock.innerText = "Ошибка: " + err.message;
                 errorBlock.style.display = "block";
                 analyzeBtn.disabled = false;
-            };
+            }
         }
     </script>
 </body>
