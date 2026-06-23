@@ -5,15 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Ставки Ai анализ</title>
     <style>
-        /* Идеальная цветовая гамма по скриншоту */
         :root {
-            --bg-dark: #090d0a; /* Ультра-темный, почти черный */
-            --card-bg: #111612; /* Темно-зеленый глубокий оттенок плашек */
+            --bg-dark: #090d0a; 
+            --card-bg: #111612; 
             --border-color: rgba(255, 255, 255, 0.05);
-            --neon-green: #10b981; /* Яркий зеленый для лиги и процентов */
+            --neon-green: #10b981; 
             --text-white: #ffffff;
             --text-gray: #94a3b8;
-            --accent-cyan: #06b6d4; /* Для парящей кнопки Назад */
+            --accent-cyan: #06b6d4; 
         }
 
         * {
@@ -28,7 +27,7 @@
             background-color: var(--bg-dark);
             color: var(--text-white);
             padding: 16px;
-            padding-bottom: 110px; /* Место для парящей кнопки */
+            padding-bottom: 110px; 
         }
 
         /* ПАРАЩЕЕ ОКОШКО: КНОПКА НАЗАД */
@@ -63,7 +62,6 @@
             gap: 8px;
         }
 
-        /* СТИЛЬ КАРТОЧЕК */
         .card {
             background-color: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -84,10 +82,9 @@
         }
 
         .card-meta-icon {
-            color: #ef4444; /* Иконка булавки или таргета */
+            color: #ef4444; 
         }
 
-        /* 1. Карточка события */
         .match-title {
             font-size: 20px;
             font-weight: 700;
@@ -100,7 +97,6 @@
             font-weight: 500;
         }
 
-        /* 2. Карточка итога (Прогноза) */
         .main-pick-box {
             background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(17, 22, 18, 0) 100%);
             border-left: 4px solid var(--neon-green);
@@ -111,7 +107,6 @@
             margin-top: 6px;
         }
 
-        /* 3. Карточка валуйности с сеткой */
         .value-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -140,7 +135,6 @@
             font-weight: 700;
         }
 
-        /* Текстовое описание внутри блоков */
         .section-text {
             font-size: 13px;
             line-height: 1.5;
@@ -148,7 +142,6 @@
             margin-top: 6px;
         }
 
-        /* Полоса уверенности внизу */
         .confidence-row {
             display: flex;
             align-items: center;
@@ -178,67 +171,50 @@
             width: 0%;
             transition: width 0.6s ease-in-out;
         }
-
-        /* Экран загрузки */
-        #loading_screen {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: var(--bg-dark);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 15px;
-        }
     </style>
 </head>
 <body>
 
-    <div id="loading_screen">
-        <div>Математическая ИИ-симуляция матча...</div>
-    </div>
-
     <div class="card">
         <div class="card-meta"><span class="card-meta-icon">📌</span> СОБЫТИЕ И ТУРНИР</div>
-        <div class="match-title" id="match_title">Загрузка команд...</div>
-        <div class="league-title" id="league">Определяем лигу...</div>
+        <div class="match-title" id="match_title">Анализ купона...</div>
+        <div class="league-title" id="league">Загрузка данных матча</div>
     </div>
 
     <div class="card">
         <div class="card-meta"><span class="card-meta-icon">🎯</span> МАТЕМАТИЧЕСКИЙ ИТОГ МОДЕЛИ</div>
-        <div class="main-pick-box" id="capper_pick">...</div>
+        <div class="main-pick-box" id="capper_pick">Обработка...</div>
     </div>
 
     <div class="card">
         <div class="card-meta"><span class="card-meta-icon">📈</span> ОЦЕНКА ВАЛУЙНОСТИ (VALUE)</div>
-        <div class="section-text" id="value_verdict">Расчет математического перевеса...</div>
+        <div class="section-text" id="value_verdict">ИИ оценивает вероятность исхода и погрешность линии букмекера...</div>
         
         <div class="value-grid">
             <div class="value-sub-box">
                 <span class="sub-box-label">Выгода</span>
-                <span class="sub-box-value" id="value_profit">...</span>
+                <span class="sub-box-value" id="value_profit">Расчёт...</span>
             </div>
             <div class="value-sub-box">
                 <span class="sub-box-label">Маржа БК</span>
-                <span class="sub-box-value" id="margin_eval">...</span>
+                <span class="sub-box-value" id="margin_eval">Расчёт...</span>
             </div>
         </div>
     </div>
 
     <div class="card">
         <div class="card-meta"><span class="card-meta-icon">📊</span> ТРЕНДЫ И СОСТОЯНИЕ КОМАНД</div>
-        <div class="section-text" id="form_trends">Анализ формы и xG метрик...</div>
+        <div class="section-text" id="form_trends">Нейросеть генерирует продвинутую статистику и xG метрики...</div>
     </div>
 
     <div class="card">
         <div class="card-meta"><span class="card-meta-icon">👥</span> ИСТОРИЯ ОЧНЫХ ПРОТИВОСТОЯНИЙ</div>
-        <div class="section-text" id="head_to_head">Стилистический разбор встреч...</div>
+        <div class="section-text" id="head_to_head">Стилистический разбор тактических схем и прошлых личных встреч...</div>
     </div>
 
     <div class="card">
         <div class="card-meta"><span class="card-meta-icon">🧠</span> РАСШИРЕННЫЙ МАТЕМАТИЧЕСКИЙ АНАЛИЗ</div>
-        <div class="section-text" id="final_verdict">Пошаговая симуляция исходов...</div>
+        <div class="section-text" id="final_verdict">Пошаговое моделирование игровых сценариев...</div>
         
         <div class="confidence-row">
             <span>Уверенность модели:</span>
@@ -256,14 +232,10 @@
     </div>
 
     <script>
-        // Функция интеграции с твоим бэкендом app.py
+        // Функция интеграции с бэкендом
         function updateUI(analysisData) {
             if(!analysisData) return;
             
-            // Прячем экран загрузки
-            document.getElementById('loading_screen').style.display = 'none';
-
-            // Раскладываем данные по карточкам в точности по макету
             if(analysisData.match_title) document.getElementById('match_title').innerText = analysisData.match_title;
             if(analysisData.league) document.getElementById('league').innerText = analysisData.league;
             if(analysisData.capper_pick) document.getElementById('capper_pick').innerText = analysisData.capper_pick;
@@ -288,7 +260,6 @@
             }
         }
 
-        // Авто-подхват кэшированных данных при переходе между экранами
         window.addEventListener('DOMContentLoaded', () => {
             const cachedData = localStorage.getItem('last_analysis');
             if(cachedData) {
