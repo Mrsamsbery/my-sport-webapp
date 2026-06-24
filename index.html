@@ -438,7 +438,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const BACKEND_URL = "https://frostbite-unhook-smokiness.ngrok-free.dev";
+        // ======= ТВОЙ НОВЫЙ СЕРВЕР СО СТАБИЛЬНЫМ SSL =======
+        const BACKEND_URL = "https://sportaibrain.top";
         
         let selectedFile = null;
         let userId = "guest";
@@ -578,7 +579,6 @@
 
                 const data = await response.json();
 
-                // ======= ОБРАБОТКА ОШИБКИ ЛИМИТОВ 403 И ПАРТНЕРСКОЙ ССЫЛКИ =======
                 if (!response.ok) {
                     clearInterval(stepsInterval);
                     loader.style.display = "none";
@@ -586,7 +586,6 @@
                     analyzeBtn.classList.add("btn-ready-pulse");
 
                     if (data.limit_exceeded) {
-                        // Активируем наше всплывающее неоновое окно БК
                         document.getElementById("partner-message").innerHTML = data.message;
                         document.getElementById("partner-link-btn").href = data.link;
                         togglePartnerSheet(true);
@@ -608,7 +607,7 @@
                     }
 
                     resultsPanel.scrollIntoView({ behavior: 'smooth' });
-                    fetchUserLimits(); // Обновляем лимиты на виджете (станет 0 / 3)
+                    fetchUserLimits();
                 } else {
                     throw new Error(data.error || "Ошибка generation разбора.");
                 }
@@ -665,7 +664,6 @@
             }
         }
 
-        // ======= УПРАВЛЕНИЕ ОКНОМ ПАРТНЕРКИ БК =======
         function togglePartnerSheet(isOpen) {
             const sheet = document.getElementById("partner-sheet");
             const overlay = document.getElementById("sheet-overlay");
