@@ -140,6 +140,24 @@
             100% { box-shadow: 0 6px 20px rgba(0, 255, 102, 0.3); }
         }
 
+        .btn-open-partner {
+            background: linear-gradient(90deg, #22c55e 0%, #00ff66 100%);
+            color: #000000;
+            font-weight: 800;
+            text-decoration: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding: 15px;
+            border-radius: 14px;
+            font-size: 15px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+            transition: all 0.2s;
+        }
+        .btn-open-partner:active { transform: scale(0.98); }
+
         .btn-quick-access {
             display: none;
             background: rgba(0, 255, 102, 0.04);
@@ -181,13 +199,14 @@
             display: none;
             backdrop-filter: blur(4px);
         }
+        .sheet-overlay.open { display: block; }
         .sheet-handle { width: 40px; height: 5px; background: #233a2a; border-radius: 3px; margin: 0 auto 16px auto; }
         .sheet-title { font-size: 16px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; margin-bottom: 14px; text-align: center; }
         .history-item { background: linear-gradient(145deg, #111a14, #0d1410); border: 1px solid var(--border-color); padding: 14px; border-radius: 16px; margin-bottom: 10px; cursor: pointer; }
         .history-match { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .history-pick { font-size: 12px; color: var(--accent-color); font-weight: 600; }
 
-        /* --- НОВЫЙ ИНТЕРАКТИВНЫЙ xG-ВИДЖЕТ БАЛАНСА СИЛ --- */
+        /* --- ИНТЕРАКТИВНЫЙ xG-ВИДЖЕТ БАЛАНСА СИЛ --- */
         .xg-widget {
             margin-top: 18px;
             background: #090f0b;
@@ -224,7 +243,7 @@
         .xg-bar-home {
             height: 100%;
             background: linear-gradient(90deg, #00cc52, var(--accent-color));
-            width: 50%; /* Динамически меняется */
+            width: 50%;
             transition: width 1.2s ease-out;
             box-shadow: 0 0 8px rgba(0, 255, 102, 0.4);
         }
@@ -268,6 +287,25 @@
         .confidence-bar { height: 100%; background: linear-gradient(90deg, #00cc52, var(--accent-color)); width: 0%; transition: width 1s ease-in-out; box-shadow: 0 0 8px rgba(0, 255, 102, 0.5); }
 
         .error-card { display: none; background-color: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.25); border-radius: 16px; padding: 14px; color: #ff453a; font-size: 14px; text-align: center; margin-bottom: 20px; }
+
+        /* ======= СТИЛИ ДЛЯ НЕОНОВОГО ОКНА ПАРТНЕРКИ БК ======= */
+        .partner-sheet {
+            position: fixed;
+            bottom: -100%;
+            left: 0; right: 0;
+            background: linear-gradient(145deg, #08100b, #0d1a12);
+            border-top: 2px solid #00ff66;
+            border-radius: 28px 28px 0 0;
+            padding: 24px;
+            box-shadow: 0 -10px 40px rgba(0, 255, 102, 0.15);
+            z-index: 4000;
+            transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            text-align: center;
+        }
+        .partner-sheet.open { bottom: 0; }
+        .partner-title { font-size: 19px; font-weight: 800; color: #00ff66; text-transform: uppercase; margin-bottom: 12px; text-shadow: 0 0 10px rgba(0, 255, 102, 0.3); }
+        .partner-text { font-size: 14px; line-height: 1.5; color: #e2e8f0; margin-bottom: 22px; }
+        .partner-close-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; margin-top: 14px; cursor: pointer; text-decoration: underline; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -298,14 +336,24 @@
     
     <button class="btn-quick-access" id="quick-access-btn" onclick="toggleSheet(true)">📋 История недавних разборов</button>
 
-    <div class="sheet-overlay" id="sheet-overlay" onclick="toggleSheet(false)"></div>
+    <div class="sheet-overlay" id="sheet-overlay" onclick="closeAllSheets()"></div>
+    
     <div class="bottom-sheet" id="bottom-sheet">
         <div class="sheet-handle"></div>
         <div class="sheet-title">История разборов (без траты лимитов)</div>
         <div id="history-list-container"></div>
     </div>
 
-    <!-- ИИ-ЛОАДЕР -->
+    <div class="partner-sheet" id="partner-sheet">
+        <div class="sheet-handle"></div>
+        <div class="partner-title">🎁 Получить БЕЗЛИМИТ</div>
+        <div class="partner-text" id="partner-message">
+            У вас закончились бесплатные лимиты разборов на сегодня.
+        </div>
+        <a href="#" id="partner-link-btn" target="_blank" class="btn-open-partner">👉 Зарегистрироваться в БК</a>
+        <button class="partner-close-btn" onclick="togglePartnerSheet(false)">Закрыть окно</button>
+    </div>
+
     <div class="loader-container" id="loader">
         <div class="spinner-box"><div class="spinner"></div></div>
         <div class="loader-steps">
@@ -319,7 +367,6 @@
 
     <div class="error-card" id="error-block"></div>
 
-    <!-- КАРТОЧКИ ОТВЕТА -->
     <div class="results-panel" id="results-panel">
         <div class="panel-title">📋 Заключение нейроанализа</div>
 
@@ -363,7 +410,6 @@
             <div class="card-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
             <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
             
-            <!-- xG ВИДЖЕТ СООТНОШЕНИЯ СИЛ КОМАНД -->
             <div class="xg-widget">
                 <div class="xg-widget-header">📊 Симуляция атакующего потенциала (xG)</div>
                 <div class="xg-teams-labels">
@@ -499,7 +545,6 @@
         async function startAnalysis() {
             if (!selectedFile) return;
 
-            // 📳 НА ТИВНАЯ ВИБРАЦИЯ ТГ: ЛЕГКИЙ КЛИК ПРИ НАЖАТИИ КНОПКИ
             if (window.Telegram && tg.HapticFeedback) {
                 tg.HapticFeedback.impactOccurred('light');
             }
@@ -531,8 +576,24 @@
                     body: formData
                 });
 
-                if (!response.ok) throw new Error("Сервер не вернул ответ.");
                 const data = await response.json();
+
+                // ======= ОБРАБОТКА ОШИБКИ ЛИМИТОВ 403 И ПАРТНЕРСКОЙ ССЫЛКИ =======
+                if (!response.ok) {
+                    clearInterval(stepsInterval);
+                    loader.style.display = "none";
+                    analyzeBtn.disabled = false;
+                    analyzeBtn.classList.add("btn-ready-pulse");
+
+                    if (data.limit_exceeded) {
+                        // Активируем наше всплывающее неоновое окно БК
+                        document.getElementById("partner-message").innerHTML = data.message;
+                        document.getElementById("partner-link-btn").href = data.link;
+                        togglePartnerSheet(true);
+                        return;
+                    }
+                    throw new Error(data.error || "Сервер не вернул ответ.");
+                }
 
                 if (data.success && data.analysis) {
                     renderUI(data.analysis);
@@ -542,14 +603,14 @@
                     loader.style.display = "none";
                     resultsPanel.style.display = "block";
 
-                    // 📳 НА ТИВНАЯ ВИБРАЦИЯ ТГ: ДВОЙНОЙ УСПЕШНЫЙ КЛИК ПОСЛЕ ОТРИСОВКИ
                     if (window.Telegram && tg.HapticFeedback) {
                         tg.HapticFeedback.notificationOccurred('success');
                     }
 
                     resultsPanel.scrollIntoView({ behavior: 'smooth' });
+                    fetchUserLimits(); // Обновляем лимиты на виджете (станет 0 / 3)
                 } else {
-                    throw new Error(data.error || "Ошибка генерации разбора.");
+                    throw new Error(data.error || "Ошибка generation разбора.");
                 }
             } catch (err) {
                 clearInterval(stepsInterval);
@@ -576,7 +637,6 @@
             const conf = parseInt(analysis.confidence_percent) || 75;
             document.getElementById("ui-confidence-percent").innerText = conf + "%";
             
-            // Распределяем названия команд в xG-виджет баланса сил
             let teams = title.split(/ vs | × | - /i);
             const homeName = teams[0] ? teams[0].trim() : "Хозяева";
             const awayName = teams[1] ? teams[1].trim() : "Гости";
@@ -596,11 +656,36 @@
             if (isOpen) {
                 renderHistoryList();
                 sheet.classList.add("open");
-                overlay.style.display = "block";
+                overlay.classList.add("open");
             } else {
                 sheet.classList.remove("open");
-                overlay.style.display = "none";
+                if(!document.getElementById("partner-sheet").classList.contains("open")) {
+                    overlay.classList.remove("open");
+                }
             }
+        }
+
+        // ======= УПРАВЛЕНИЕ ОКНОМ ПАРТНЕРКИ БК =======
+        function togglePartnerSheet(isOpen) {
+            const sheet = document.getElementById("partner-sheet");
+            const overlay = document.getElementById("sheet-overlay");
+            if (isOpen) {
+                sheet.classList.add("open");
+                overlay.classList.add("open");
+                if (window.Telegram && tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('warning');
+                }
+            } else {
+                sheet.classList.remove("open");
+                if(!document.getElementById("bottom-sheet").classList.contains("open")) {
+                    overlay.classList.remove("open");
+                }
+            }
+        }
+
+        function closeAllSheets() {
+            toggleSheet(false);
+            togglePartnerSheet(false);
         }
 
         function saveToHistory(newAnalysis) {
@@ -632,11 +717,10 @@
                     <div class="history-pick">Прогноз модели: ${analysis.capper_pick || "Анализ"}</div>
                 `;
                 div.onclick = () => {
-                    // Клик по истории также делает легкую тактильную вибрацию
                     if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
                     renderUI(analysis);
                     document.getElementById("results-panel").style.display = "block";
-                    toggleSheet(false);
+                    closeAllSheets();
                     document.getElementById("results-panel").scrollIntoView({ behavior: 'smooth' });
                 };
                 container.appendChild(div);
