@@ -173,36 +173,6 @@
             text-align: center;
         }
 
-        /* КРИТИЧЕСКАЯ ОБОЛОЧКА ДЛЯ ЭФФЕКТА BLUR / FOMO */
-        .blur-wrapper {
-            position: relative;
-            margin-top: 24px;
-        }
-        .card-blurred {
-            filter: blur(10px);
-            pointer-events: none;
-            user-select: none;
-        }
-        .lock-overlay {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(6, 9, 14, 0.88);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 24px;
-            box-sizing: border-box;
-            text-align: center;
-            z-index: 10;
-            border: 1px solid var(--accent-color);
-            box-shadow: inset 0 0 30px rgba(0, 255, 102, 0.1);
-        }
-        .lock-icon { font-size: 46px; margin-bottom: 12px; }
-        .lock-title { font-size: 19px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; margin-bottom: 8px; }
-        .lock-text { font-size: 13px; color: #e2e8f0; margin-bottom: 20px; line-height: 1.5; }
-
         /* НЕОНОВАЯ ПЛАШКА ВАЛУЙНОСТИ */
         .value-badge {
             display: inline-block;
@@ -224,7 +194,7 @@
             to { transform: scale(1.02); box-shadow: 0 0 18px rgba(255, 69, 58, 0.8); }
         }
 
-        /* BOTTOM SHEET И ЛОАДЕР */
+        /* ШТОРКА ДЛЯ ИСТОРИИ */
         .bottom-sheet {
             position: fixed;
             bottom: -100%; left: 0; right: 0;
@@ -247,6 +217,25 @@
         .history-match { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .history-pick { font-size: 12px; color: var(--accent-color); font-weight: 600; }
 
+        /* ВСПЛЫВАЮЩЕЕ ОКНО ПАРТНЕРКИ (МГНОВЕННЫЙ БЛОК ПРИ ЛИМИТЕ) */
+        .partner-sheet {
+            position: fixed;
+            bottom: -100%; left: 0; right: 0;
+            background: linear-gradient(145deg, #08100b, #0d1a12);
+            border-top: 2px solid var(--accent-color);
+            border-radius: 28px 28px 0 0;
+            padding: 24px;
+            box-shadow: 0 -10px 40px rgba(0, 255, 102, 0.15);
+            z-index: 4000;
+            transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            text-align: center;
+        }
+        .partner-sheet.open { bottom: 0; }
+        .partner-title { font-size: 19px; font-weight: 800; color: #00ff66; text-transform: uppercase; margin-bottom: 12px; text-shadow: 0 0 10px rgba(0, 255, 102, 0.3); }
+        .partner-text { font-size: 14px; line-height: 1.5; color: #e2e8f0; margin-bottom: 22px; }
+        .partner-close-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; margin-top: 14px; cursor: pointer; text-decoration: underline; font-weight: 600; }
+
+        /* ЛОАДЕР */
         .loader-container { display: none; background: var(--card-gradient); border: 1px solid var(--border-color); padding: 24px; border-radius: 24px; margin: 25px 0; }
         .spinner-box { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
         .spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 255, 102, 0.05); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
@@ -322,6 +311,17 @@
         <div id="history-list-container"></div>
     </div>
 
+    <!-- ТО САМОЕ ВСПЛЫВАЮЩЕЕ ОКНО БЛОКИРОВКИ ПРИ КЛИКЕ -->
+    <div class="partner-sheet" id="partner-sheet">
+        <div class="sheet-handle"></div>
+        <div class="partner-title">🎁 Получить БЕЗЛИМИТ</div>
+        <div class="partner-text" id="partner-message">
+            У вас закончились бесплатные лимиты разборов на сегодня.
+        </div>
+        <a href="#" id="partner-link-btn" target="_blank" class="btn-open-partner">👉 Зарегистрироваться в БК</a>
+        <button class="partner-close-btn" onclick="togglePartnerSheet(false)">Закрыть окно</button>
+    </div>
+
     <div class="loader-container" id="loader">
         <div class="spinner-box"><div class="spinner"></div></div>
         <div class="loader-steps">
@@ -335,62 +335,52 @@
 
     <div class="error-card" id="error-block"></div>
 
-    <!-- Обёртка размытия контента результатов (FOMO) -->
-    <div class="blur-wrapper">
-        <div id="lockOverlay" class="lock-overlay" style="display: none;">
-            <div class="lock-icon">🔒</div>
-            <div class="lock-title">Доступ ограничен</div>
-            <div class="lock-text" id="partner-message">У вас закончились бесплатные разборы купонов на сегодня. Пополните счёт у партнёра БК для безлимита.</div>
-            <a href="#" id="partner-link-btn" target="_blank" class="btn-open-partner">👉 Активировать Вечный VIP</a>
+    <div class="results-panel" id="results-panel">
+        <div class="panel-title">📋 Заключение нейроанализа</div>
+
+        <div id="badge-container"></div>
+
+        <div class="card" style="border-top: 3px solid var(--accent-color);">
+            <div class="card-header">📌 Событие и турнир</div>
+            <div class="match-title" id="ui-match-title">-</div>
+            <div class="match-meta" id="ui-league">-</div>
         </div>
 
-        <div class="results-panel" id="results-panel">
-            <div class="panel-title">📋 Заключение нейроанализа</div>
+        <div class="card">
+            <div class="card-header">🎯 Математический прогноз ИИ</div>
+            <div class="pick-highlight" id="ui-capper-pick">-</div>
+        </div>
 
-            <div id="badge-container"></div>
-
-            <div class="card" style="border-top: 3px solid var(--accent-color);">
-                <div class="card-header">📌 Событие и турнир</div>
-                <div class="match-title" id="ui-match-title">-</div>
-                <div class="match-meta" id="ui-league">-</div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">🎯 Математический прогноз ИИ</div>
-                <div class="pick-highlight" id="ui-capper-pick">-</div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">¼ Оценка валуйности (Value)</div>
-                <div class="card-body" id="ui-value-verdict">-</div>
-                <div class="stats-grid">
-                    <div class="stat-badge">
-                        <span>Выгода</span>
-                        <strong id="ui-value-profit">-</strong>
-                    </div>
-                    <div class="stat-badge">
-                        <span>Маржа БК</span>
-                        <strong id="ui-margin-eval">-</strong>
-                    </div>
+        <div class="card">
+            <div class="card-header">¼ Оценка валуйности (Value)</div>
+            <div class="card-body" id="ui-value-verdict">-</div>
+            <div class="stats-grid">
+                <div class="stat-badge">
+                    <span>Выгода</span>
+                    <strong id="ui-value-profit">-</strong>
+                </div>
+                <div class="stat-badge">
+                    <span>Маржа БК</span>
+                    <strong id="ui-margin-eval">-</strong>
                 </div>
             </div>
+        </div>
 
-            <div class="card">
-                <div class="card-header">📊 Тренды и состояние команд</div>
-                <div class="card-body" id="ui-form-trends">-</div>
-            </div>
+        <div class="card">
+            <div class="card-header">📊 Тренды и состояние команд</div>
+            <div class="card-body" id="ui-form-trends">-</div>
+        </div>
 
-            <div class="card">
-                <div class="card-header">👥 История очных противостояний</div>
-                <div class="card-body" id="ui-head-to-head">-</div>
-            </div>
+        <div class="card">
+            <div class="card-header">👥 История очных противостояний</div>
+            <div class="card-body" id="ui-head-to-head">-</div>
+        </div>
 
-            <div class="card" style="background: linear-gradient(145deg, #0d1510, #16291b); border: 1px solid rgba(0, 255, 102, 0.3);">
-                <div class="card-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
-                <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
+        <div class="card" style="background: linear-gradient(145deg, #0d1510, #16291b); border: 1px solid rgba(0, 255, 102, 0.3);">
+            <div class="card-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
+            <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
 
-                <div class="confidence-box" id="ui-confidence-container"></div>
-            </div>
+            <div class="confidence-box" id="ui-confidence-container"></div>
         </div>
     </div>
 
@@ -529,14 +519,11 @@
             const errorBlock = document.getElementById("error-block");
             const resultsPanel = document.getElementById("results-panel");
             const analyzeBtn = document.getElementById("analyze-btn");
-            const lockOverlay = document.getElementById("lockOverlay");
 
             analyzeBtn.classList.remove("btn-ready-pulse");
             loader.style.display = "block";
             errorBlock.style.display = "none";
             resultsPanel.style.display = "none";
-            lockOverlay.style.display = "none";
-            resultsPanel.classList.remove("card-blurred");
             analyzeBtn.disabled = true;
 
             const stepsInterval = updateLoaderSteps();
@@ -562,21 +549,10 @@
                     analyzeBtn.classList.add("btn-ready-pulse");
 
                     if (data.limit_exceeded) {
-                        document.getElementById("ui-match-title").innerText = "Доступ заблокирован";
-                        document.getElementById("ui-league").innerText = "Требуется Premium VIP активация";
-                        document.getElementById("ui-capper-pick").innerText = "🔒 Скрыто лимитом системы";
-                        document.getElementById("ui-form-trends").innerText = "Данные трендов скрыты...";
-                        document.getElementById("ui-head-to-head").innerText = "История очных матчей скрыта...";
-                        document.getElementById("ui-final-verdict").innerText = "Итоговое заключение ИИ скрыто...";
-                        
-                        resultsPanel.style.display = "block";
-                        resultsPanel.classList.add("card-blurred");
-
+                        // МОМЕНТАЛЬНО ВЫБРАСЫВАЕМ ШТОРКУ ПАРТНЕРКИ НА ОШИБКЕ 403
                         document.getElementById("partner-message").innerHTML = data.message;
                         document.getElementById("partner-link-btn").href = data.link;
-                        lockOverlay.style.display = "flex";
-                        
-                        if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+                        togglePartnerSheet(true);
                         return;
                     }
                     throw new Error(data.error || "Сервер не вернул ответ.");
@@ -656,12 +632,30 @@
                 overlay.classList.add("open");
             } else {
                 sheet.classList.remove("open");
-                overlay.classList.remove("open");
+                if(!document.getElementById("partner-sheet").classList.contains("open")) {
+                    overlay.classList.remove("open");
+                }
+            }
+        }
+
+        function togglePartnerSheet(isOpen) {
+            const sheet = document.getElementById("partner-sheet");
+            const overlay = document.getElementById("sheet-overlay");
+            if (isOpen) {
+                sheet.classList.add("open");
+                overlay.classList.add("open");
+                if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
+            } else {
+                sheet.classList.remove("open");
+                if(!document.getElementById("bottom-sheet").classList.contains("open")) {
+                    overlay.classList.remove("open");
+                }
             }
         }
 
         function closeAllSheets() {
             toggleSheet(false);
+            togglePartnerSheet(false);
         }
 
         function saveToHistory(newAnalysis) {
