@@ -18,6 +18,7 @@
             --card-gradient: linear-gradient(145deg, #0d1510, #111e16);
             --vip-color: #00f0ff;
             --vip-gradient: linear-gradient(145deg, #0a1c24, #08121a);
+            --danger-color: #ff453a;
         }
 
         body {
@@ -149,14 +150,12 @@
             justify-content: center;
             align-items: center;
             width: 100%;
-            padding: 15px;
-            border-radius: 14px;
+            padding: 16px;
+            border-radius: 16px;
             font-size: 15px;
             box-sizing: border-box;
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.4);
         }
-        .btn-open-partner:active { transform: scale(0.98); }
 
         .btn-quick-access {
             display: none;
@@ -171,15 +170,63 @@
             margin-top: 12px;
             cursor: pointer;
             text-align: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            transition: all 0.2s;
         }
 
-        /* BOTTOM SHEET */
+        /* КРИТИЧЕСКАЯ ОБОЛОЧКА ДЛЯ ЭФФЕКТА BLUR / FOMO */
+        .blur-wrapper {
+            position: relative;
+            margin-top: 24px;
+        }
+        .card-blurred {
+            filter: blur(10px);
+            pointer-events: none;
+            user-select: none;
+        }
+        .lock-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(6, 9, 14, 0.88);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            box-sizing: border-box;
+            text-align: center;
+            z-index: 10;
+            border: 1px solid var(--accent-color);
+            box-shadow: inset 0 0 30px rgba(0, 255, 102, 0.1);
+        }
+        .lock-icon { font-size: 46px; margin-bottom: 12px; }
+        .lock-title { font-size: 19px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; margin-bottom: 8px; }
+        .lock-text { font-size: 13px; color: #e2e8f0; margin-bottom: 20px; line-height: 1.5; }
+
+        /* НЕОНОВАЯ ПЛАШКА ВАЛУЙНОСТИ */
+        .value-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 11px;
+            font-weight: 800;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            animation: badgePulse 1.5s infinite alternate;
+        }
+        .badge-hot {
+            background-color: var(--danger-color);
+            color: #fff;
+            box-shadow: 0 0 12px rgba(255, 69, 58, 0.6);
+        }
+        @keyframes badgePulse {
+            from { transform: scale(1); box-shadow: 0 0 10px rgba(255, 69, 58, 0.4); }
+            to { transform: scale(1.02); box-shadow: 0 0 18px rgba(255, 69, 58, 0.8); }
+        }
+
+        /* BOTTOM SHEET И ЛОАДЕР */
         .bottom-sheet {
             position: fixed;
-            bottom: -100%;
-            left: 0; right: 0;
+            bottom: -100%; left: 0; right: 0;
             background: #090f0b;
             border-top: 2px solid var(--border-color);
             border-radius: 28px 28px 0 0;
@@ -191,14 +238,7 @@
             overflow-y: auto;
         }
         .bottom-sheet.open { bottom: 0; }
-        .sheet-overlay {
-            position: fixed;
-            top:0; left:0; right:0; bottom:0;
-            background: rgba(0,0,0,0.7);
-            z-index: 2900;
-            display: none;
-            backdrop-filter: blur(4px);
-        }
+        .sheet-overlay { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.7); z-index: 2900; display: none; backdrop-filter: blur(4px); }
         .sheet-overlay.open { display: block; }
         .sheet-handle { width: 40px; height: 5px; background: #233a2a; border-radius: 3px; margin: 0 auto 16px auto; }
         .sheet-title { font-size: 16px; font-weight: 800; color: var(--accent-color); text-transform: uppercase; margin-bottom: 14px; text-align: center; }
@@ -206,24 +246,23 @@
         .history-match { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .history-pick { font-size: 12px; color: var(--accent-color); font-weight: 600; }
 
-        /* ЛОАДЕР */
         .loader-container { display: none; background: var(--card-gradient); border: 1px solid var(--border-color); padding: 24px; border-radius: 24px; margin: 25px 0; }
         .spinner-box { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
         .spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 255, 102, 0.05); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
         .loader-steps { text-align: left; max-width: 280px; margin: 0 auto; }
-        .step-item { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; transition: all 0.3s ease; }
-        .step-item.active { color: var(--accent-color); font-weight: 700; transform: translateX(4px); }
+        .step-item { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .step-item.active { color: var(--accent-color); font-weight: 700; transform: translateX(4px); transition: all 0.3s; }
         .step-item.done { color: #4a7556; }
         .step-dot { width: 6px; height: 6px; background-color: var(--text-muted); border-radius: 50%; }
         .step-item.active .step-dot { background-color: var(--accent-color); box-shadow: 0 0 8px var(--accent-color); }
         .step-item.done .step-dot { background-color: #4a7556; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* КАРТОЧКИ ОТВЕТА */
+        /* КАРТОЧКИ РЕЗУЛЬТАТОВ */
         .results-panel { display: none; margin-top: 24px; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .panel-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; }
-        .card { background: var(--card-gradient); border: 1px solid var(--border-color); border-radius: 20px; padding: 16px; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
+        .card { background: var(--card-gradient); border: 1px solid var(--border-color); border-radius: 20px; padding: 16px; margin-bottom: 16px; }
         .card-header { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
         .card-body { font-size: 14px; line-height: 1.55; color: #e2e8f0; }
         .match-title { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
@@ -234,31 +273,16 @@
         .stat-badge span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
         .stat-badge strong { font-size: 15px; color: #ffffff; }
 
-        .confidence-box { margin-top: 12px; }
+        /* ТРЁХЦВЕТНАЯ ШКАЛА УВЕРЕННОСТИ */
+        .confidence-box { margin-top: 14px; }
         .confidence-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
-        .confidence-track { height: 6px; background: #16241c; border-radius: 4px; overflow: hidden; }
-        .confidence-bar { height: 100%; background: linear-gradient(90deg, #00cc52, var(--accent-color)); width: 0%; transition: width 1s ease-in-out; box-shadow: 0 0 8px rgba(0, 255, 102, 0.5); }
+        .confidence-track { height: 8px; background: #16241c; border-radius: 4px; overflow: hidden; }
+        .confidence-bar { height: 100%; width: 0%; transition: width 1s ease-in-out; border-radius: 4px; }
+        .bar-low { background: var(--warning-color); box-shadow: 0 0 8px rgba(255, 204, 0, 0.5); }
+        .bar-medium { background: var(--accent-color); box-shadow: 0 0 8px rgba(0, 255, 102, 0.5); }
+        .bar-high { background: linear-gradient(90deg, #5856d6, #af52de); box-shadow: 0 0 12px rgba(175, 82, 222, 0.6); }
 
         .error-card { display: none; background-color: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.25); border-radius: 16px; padding: 14px; color: #ff453a; font-size: 14px; text-align: center; margin-bottom: 20px; }
-
-        /* ======= СТИЛИ ДЛЯ НЕОНОВОГО ОКНА ПАРТНЕРКИ БК ======= */
-        .partner-sheet {
-            position: fixed;
-            bottom: -100%;
-            left: 0; right: 0;
-            background: linear-gradient(145deg, #08100b, #0d1a12);
-            border-top: 2px solid #00ff66;
-            border-radius: 28px 28px 0 0;
-            padding: 24px;
-            box-shadow: 0 -10px 40px rgba(0, 255, 102, 0.15);
-            z-index: 4000;
-            transition: bottom 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            text-align: center;
-        }
-        .partner-sheet.open { bottom: 0; }
-        .partner-title { font-size: 19px; font-weight: 800; color: #00ff66; text-transform: uppercase; margin-bottom: 12px; text-shadow: 0 0 10px rgba(0, 255, 102, 0.3); }
-        .partner-text { font-size: 14px; line-height: 1.5; color: #e2e8f0; margin-bottom: 22px; }
-        .partner-close-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; margin-top: 14px; cursor: pointer; text-decoration: underline; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -297,16 +321,6 @@
         <div id="history-list-container"></div>
     </div>
 
-    <div class="partner-sheet" id="partner-sheet">
-        <div class="sheet-handle"></div>
-        <div class="partner-title">🎁 Получить БЕЗЛИМИТ</div>
-        <div class="partner-text" id="partner-message">
-            У вас закончились бесплатные лимиты разборов на сегодня.
-        </div>
-        <a href="#" id="partner-link-btn" target="_blank" class="btn-open-partner">👉 Зарегистрироваться в БК</a>
-        <button class="partner-close-btn" onclick="togglePartnerSheet(false)">Закрыть окно</button>
-    </div>
-
     <div class="loader-container" id="loader">
         <div class="spinner-box"><div class="spinner"></div></div>
         <div class="loader-steps">
@@ -320,57 +334,60 @@
 
     <div class="error-card" id="error-block"></div>
 
-    <div class="results-panel" id="results-panel">
-        <div class="panel-title">📋 Заключение нейроанализа</div>
-
-        <div class="card" style="border-top: 3px solid var(--accent-color);">
-            <div class="card-header">📌 Событие и турнир</div>
-            <div class="match-title" id="ui-match-title">-</div>
-            <div class="match-meta" id="ui-league">-</div>
+    <div class="blur-wrapper">
+        <div id="lockOverlay" class="lock-overlay" style="display: none;">
+            <div class="lock-icon">🔒</div>
+            <div class="lock-title">Доступ ограничен</div>
+            <div class="lock-text" id="partner-message">У вас закончились бесплатные разборы купонов на сегодня. Пополните счёт у партнёра БК для безлимита.</div>
+            <a href="#" id="partner-link-btn" target="_blank" class="btn-open-partner">👉 Активировать Вечный VIP</a>
         </div>
 
-        <div class="card">
-            <div class="card-header">🎯 Математический прогноз ИИ</div>
-            <div class="pick-highlight" id="ui-capper-pick">-</div>
-        </div>
+        <div class="results-panel" id="results-panel">
+            <div class="panel-title">📋 Заключение нейроанализа</div>
 
-        <div class="card">
-            <div class="card-header">📈 Оценка валуйности (Value)</div>
-            <div class="card-body" id="ui-value-verdict">-</div>
-            <div class="stats-grid">
-                <div class="stat-badge">
-                    <span>Выгода</span>
-                    <strong id="ui-value-profit">-</strong>
-                </div>
-                <div class="stat-badge">
-                    <span>Маржа БК</span>
-                    <strong id="ui-margin-eval">-</strong>
+            <div id="badge-container"></div>
+
+            <div class="card" style="border-top: 3px solid var(--accent-color);">
+                <div class="card-header">📌 Событие и турнир</div>
+                <div class="match-title" id="ui-match-title">-</div>
+                <div class="match-meta" id="ui-league">-</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🎯 Математический прогноз ИИ</div>
+                <div class="pick-highlight" id="ui-capper-pick">-</div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">¼ Оценка валуйности (Value)</div>
+                <div class="card-body" id="ui-value-verdict">-</div>
+                <div class="stats-grid">
+                    <div class="stat-badge">
+                        <span>Выгода</span>
+                        <strong id="ui-value-profit">-</strong>
+                    </div>
+                    <div class="stat-badge">
+                        <span>Маржа БК</span>
+                        <strong id="ui-margin-eval">-</strong>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <div class="card-header">📊 Тренды и состояние команд</div>
-            <div class="card-body" id="ui-form-trends">-</div>
-        </div>
+            <div class="card">
+                <div class="card-header">📊 Тренды и состояние команд</div>
+                <div class="card-body" id="ui-form-trends">-</div>
+            </div>
 
-        <div class="card">
-            <div class="card-header">👥 История очных противостояний</div>
-            <div class="card-body" id="ui-head-to-head">-</div>
-        </div>
+            <div class="card">
+                <div class="card-header">👥 История очных противостояний</div>
+                <div class="card-body" id="ui-head-to-head">-</div>
+            </div>
 
-        <div class="card" style="background: linear-gradient(145deg, #0d1510, #16291b); border: 1px solid rgba(0, 255, 102, 0.3);">
-            <div class="card-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
-            <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
+            <div class="card" style="background: linear-gradient(145deg, #0d1510, #16291b); border: 1px solid rgba(0, 255, 102, 0.3);">
+                <div class="card-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
+                <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
 
-            <div class="confidence-box">
-                <div class="confidence-label">
-                    <span style="color: var(--text-muted); font-size: 12px;">Уверенность модели:</span>
-                    <strong id="ui-confidence-percent" style="color: var(--accent-color);">0%</strong>
-                </div>
-                <div class="confidence-track">
-                    <div class="confidence-bar" id="ui-confidence-bar"></div>
-                </div>
+                <div class="confidence-box" id="ui-confidence-container"></div>
             </div>
         </div>
     </div>
@@ -380,12 +397,36 @@
         tg.expand();
 
         const BACKEND_URL = "https://sportaibrain.top";
-        
         let selectedFile = null;
         let userId = "guest";
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id;
+        }
+
+        // Функция превращения текста в красивые списки с эмодзи
+        function formatToEmojiList(text, defaultEmoji = "🎯") {
+            if (!text) return "-";
+            const sentences = text.split(/[.\n]/).map(s => s.trim()).filter(s => s.length > 5);
+            const emojiMap = {
+                "форма": "📈", "xg": "📊", "состав": "❌", "травм": "🤕", 
+                "тактик": "🧠", "мотивац": "🔥", "коэф": "💰", "валуй": "⚠️", "побед": "🎯"
+            };
+
+            return `<ul style="list-style: none; padding-left: 0; margin: 0;">` + 
+                sentences.map(sentence => {
+                    let currentEmoji = defaultEmoji;
+                    for (let key in emojiMap) {
+                        if (sentence.toLowerCase().includes(key)) {
+                            currentEmoji = emojiMap[key];
+                            break;
+                        }
+                    }
+                    return `<li style="margin-bottom: 8px; display: flex; align-items: flex-start;">
+                                <span style="margin-right: 8px; font-size: 15px;">${currentEmoji}</span>
+                                <span>${sentence}.</span>
+                            </li>`;
+                }).join('') + `</ul>`;
         }
 
         async function fetchUserLimits() {
@@ -421,14 +462,12 @@
             const files = event.target.files;
             if (files.length > 0) {
                 selectedFile = files[0];
-                
                 const previewImg = document.getElementById("preview-img");
                 document.getElementById("upload-icon-box").style.display = "none"; 
                 document.getElementById("upload-hints-box").style.display = "none"; 
                 
                 previewImg.src = URL.createObjectURL(selectedFile);
                 previewImg.style.display = "block";
-                
                 document.getElementById("upload-status-text").innerText = "Купон успешно добавлен";
                 
                 const analyzeBtn = document.getElementById("analyze-btn");
@@ -439,10 +478,8 @@
 
         function updateLoaderSteps() {
             const steps = [
-                document.getElementById("step-0"),
-                document.getElementById("step-1"),
-                document.getElementById("step-2"),
-                document.getElementById("step-3"),
+                document.getElementById("step-0"), document.getElementById("step-1"),
+                document.getElementById("step-2"), document.getElementById("step-3"),
                 document.getElementById("step-4")
             ];
             steps.forEach(s => s.className = "step-item");
@@ -485,27 +522,26 @@
 
         async function startAnalysis() {
             if (!selectedFile) return;
-
-            if (window.Telegram && tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('light');
-            }
+            if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
             const loader = document.getElementById("loader");
             const errorBlock = document.getElementById("error-block");
             const resultsPanel = document.getElementById("results-panel");
             const analyzeBtn = document.getElementById("analyze-btn");
+            const lockOverlay = document.getElementById("lockOverlay");
 
             analyzeBtn.classList.remove("btn-ready-pulse");
             loader.style.display = "block";
             errorBlock.style.display = "none";
             resultsPanel.style.display = "none";
+            lockOverlay.style.display = "none";
+            resultsPanel.classList.remove("card-blurred");
             analyzeBtn.disabled = true;
 
             const stepsInterval = updateLoaderSteps();
 
             try {
                 const compressedBlob = await compressImage(selectedFile, 1200, 1200, 0.7);
-
                 const formData = new FormData();
                 formData.append("image", compressedBlob, "compressed.png");
                 formData.append("user_id", String(userId));
@@ -516,7 +552,6 @@
                     headers: { "ngrok-skip-browser-warning": "true" },
                     body: formData
                 });
-
                 const data = await response.json();
 
                 if (!response.ok) {
@@ -526,9 +561,22 @@
                     analyzeBtn.classList.add("btn-ready-pulse");
 
                     if (data.limit_exceeded) {
+                        // Подгружаем фейк-разметку с блюром для эффекта FOMO
+                        document.getElementById("ui-match-title").innerText = "Доступ заблокирован";
+                        document.getElementById("ui-league").innerText = "Требуется Premium VIP активация";
+                        document.getElementById("ui-capper-pick").innerText = "🔒 Скрыто лимитом системы";
+                        document.getElementById("ui-form-trends").innerText = "Данные трендов скрыты...";
+                        document.getElementById("ui-head-to-head").innerText = "История очных матчей скрыта...";
+                        document.getElementById("ui-final-verdict").innerText = "Итоговое заключение ИИ скрыто...";
+                        
+                        resultsPanel.style.display = "block";
+                        resultsPanel.classList.add("card-blurred");
+
                         document.getElementById("partner-message").innerHTML = data.message;
                         document.getElementById("partner-link-btn").href = data.link;
-                        togglePartnerSheet(true);
+                        lockOverlay.style.display = "flex";
+                        
+                        if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('warning');
                         return;
                     }
                     throw new Error(data.error || "Сервер не вернул ответ.");
@@ -542,14 +590,9 @@
                     loader.style.display = "none";
                     resultsPanel.style.display = "block";
 
-                    if (window.Telegram && tg.HapticFeedback) {
-                        tg.HapticFeedback.notificationOccurred('success');
-                    }
-
+                    if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                     resultsPanel.scrollIntoView({ behavior: 'smooth' });
                     fetchUserLimits();
-                } else {
-                    throw new Error(data.error || "Ошибка generation разбора.");
                 }
             } catch (err) {
                 clearInterval(stepsInterval);
@@ -562,23 +605,49 @@
         }
 
         function renderUI(analysis) {
-            const title = analysis.match_title || "Матч";
-            document.getElementById("ui-match-title").innerText = title;
+            document.getElementById("ui-match-title").innerText = analysis.match_title || "Матч";
             document.getElementById("ui-league").innerText = analysis.league || "Турнир не определен";
             document.getElementById("ui-capper-pick").innerText = analysis.capper_pick || "-";
-            document.getElementById("ui-value-verdict").innerText = analysis.value_verdict || "-";
+            
+            // Наваливаем сочные эмодзи-списки вместо простыней текста
+            document.getElementById("ui-value-verdict").innerHTML = formatToEmojiList(analysis.value_verdict, "⚠️");
+            document.getElementById("ui-form-trends").innerHTML = formatToEmojiList(analysis.form_trends, "📈");
+            document.getElementById("ui-head-to-head").innerHTML = formatToEmojiList(analysis.head_to_head, "⚔️");
+            document.getElementById("ui-final-verdict").innerHTML = formatToEmojiList(analysis.final_verdict, "🧠");
+            
             document.getElementById("ui-value-profit").innerText = analysis.value_profit || "-";
             document.getElementById("ui-margin-eval").innerText = analysis.margin_eval || "-";
-            document.getElementById("ui-form-trends").innerText = analysis.form_trends || "-";
-            document.getElementById("ui-head-to-head").innerText = analysis.head_to_head || "-";
-            document.getElementById("ui-final-verdict").innerText = analysis.final_verdict || "-";
             
             const conf = parseInt(analysis.confidence_percent) || 75;
-            document.getElementById("ui-confidence-percent").innerText = conf + "%";
-            
-            setTimeout(() => {
-                document.getElementById("ui-confidence-bar").style.width = conf + "%";
-            }, 100);
+
+            // Выставляем неоновую плашку валуйности (Top value)
+            const badgeContainer = document.getElementById("badge-container");
+            if (conf >= 75) {
+                badgeContainer.innerHTML = `<div class="value-badge badge-hot">🔥 TOP VALUE / ПЕРЕКОС ЛИНИИ 1win</div>`;
+            } else {
+                badgeContainer.innerHTML = "";
+            }
+
+            // Рендерим трехцветный прогресс-бар уверенности каппера
+            let barColorClass = "bar-low";
+            let statusText = "Умеренный валуй";
+            if (conf >= 65 && conf < 85) {
+                barColorClass = "bar-medium";
+                statusText = "Высокая проходимость 🎯";
+            } else if (conf >= 85) {
+                barColorClass = "bar-high";
+                statusText = "👑 КУШ ДНЯ / ЖЕЛЕЗОБЕТОН";
+            }
+
+            document.getElementById("ui-confidence-container").innerHTML = `
+                <div class="confidence-label">
+                    <span style="color: var(--text-muted); font-size: 12px;">Уверенность модели: <strong style="color:var(--accent-color)">${conf}%</strong></span>
+                    <strong style="font-size: 11px; font-weight:400; opacity:0.9;">${statusText}</strong>
+                </div>
+                <div class="confidence-track">
+                    <div class="confidence-bar ${barColorClass}" id="ui-confidence-bar" style="width: ${conf}%"></div>
+                </div>
+            `;
         }
 
         function toggleSheet(isOpen) {
@@ -590,32 +659,12 @@
                 overlay.classList.add("open");
             } else {
                 sheet.classList.remove("open");
-                if(!document.getElementById("partner-sheet").classList.contains("open")) {
-                    overlay.classList.remove("open");
-                }
-            }
-        }
-
-        function togglePartnerSheet(isOpen) {
-            const sheet = document.getElementById("partner-sheet");
-            const overlay = document.getElementById("sheet-overlay");
-            if (isOpen) {
-                sheet.classList.add("open");
-                overlay.classList.add("open");
-                if (window.Telegram && tg.HapticFeedback) {
-                    tg.HapticFeedback.notificationOccurred('warning');
-                }
-            } else {
-                sheet.classList.remove("open");
-                if(!document.getElementById("bottom-sheet").classList.contains("open")) {
-                    overlay.classList.remove("open");
-                }
+                overlay.classList.remove("open");
             }
         }
 
         function closeAllSheets() {
             toggleSheet(false);
-            togglePartnerSheet(false);
         }
 
         function saveToHistory(newAnalysis) {
