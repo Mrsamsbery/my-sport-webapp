@@ -19,6 +19,7 @@
             --vip-color: #00f0ff;
             --vip-gradient: linear-gradient(145deg, #0a1c24, #08121a);
             --danger-color: #ff453a;
+            --warning-color: #ffcc00;
         }
 
         body {
@@ -334,6 +335,7 @@
 
     <div class="error-card" id="error-block"></div>
 
+    <!-- Обёртка размытия контента результатов (FOMO) -->
     <div class="blur-wrapper">
         <div id="lockOverlay" class="lock-overlay" style="display: none;">
             <div class="lock-icon">🔒</div>
@@ -404,7 +406,6 @@
             userId = tg.initDataUnsafe.user.id;
         }
 
-        // Функция превращения текста в красивые списки с эмодзи
         function formatToEmojiList(text, defaultEmoji = "🎯") {
             if (!text) return "-";
             const sentences = text.split(/[.\n]/).map(s => s.trim()).filter(s => s.length > 5);
@@ -561,7 +562,6 @@
                     analyzeBtn.classList.add("btn-ready-pulse");
 
                     if (data.limit_exceeded) {
-                        // Подгружаем фейк-разметку с блюром для эффекта FOMO
                         document.getElementById("ui-match-title").innerText = "Доступ заблокирован";
                         document.getElementById("ui-league").innerText = "Требуется Premium VIP активация";
                         document.getElementById("ui-capper-pick").innerText = "🔒 Скрыто лимитом системы";
@@ -609,7 +609,6 @@
             document.getElementById("ui-league").innerText = analysis.league || "Турнир не определен";
             document.getElementById("ui-capper-pick").innerText = analysis.capper_pick || "-";
             
-            // Наваливаем сочные эмодзи-списки вместо простыней текста
             document.getElementById("ui-value-verdict").innerHTML = formatToEmojiList(analysis.value_verdict, "⚠️");
             document.getElementById("ui-form-trends").innerHTML = formatToEmojiList(analysis.form_trends, "📈");
             document.getElementById("ui-head-to-head").innerHTML = formatToEmojiList(analysis.head_to_head, "⚔️");
@@ -620,15 +619,13 @@
             
             const conf = parseInt(analysis.confidence_percent) || 75;
 
-            // Выставляем неоновую плашку валуйности (Top value)
             const badgeContainer = document.getElementById("badge-container");
             if (conf >= 75) {
-                badgeContainer.innerHTML = `<div class="value-badge badge-hot">🔥 TOP VALUE / ПЕРЕКОС ЛИНИИ 1win</div>`;
+                badgeContainer.innerHTML = `<div class="value-badge badge-hot">🔥 TOP VALUE / ПЕРЕКОС ЛИНИИ БК</div>`;
             } else {
                 badgeContainer.innerHTML = "";
             }
 
-            // Рендерим трехцветный прогресс-бар уверенности каппера
             let barColorClass = "bar-low";
             let statusText = "Умеренный валуй";
             if (conf >= 65 && conf < 85) {
