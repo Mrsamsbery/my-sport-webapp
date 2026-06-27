@@ -195,7 +195,7 @@
             font-weight: 800;
             text-decoration: none;
             display: flex;
-            justify-content: center;
+            justifyContent: center;
             align-items: center;
             width: 100%;
             padding: 16px;
@@ -499,7 +499,7 @@
             userId = tg.initDataUnsafe.user.id;
         }
 
-        // ДИНАМИЧЕСКАЯ СМЕНА ТЕМЫ ВСЕГО ПРИЛОЖЕНИЯ (Зеленая / Красная)
+        // ЖЁСТКО ИСПРАВЛЕННАЯ ФУНКЦИЯ СМЕНЫ ТЕМЫ (Все строки строго в кавычках!)
         function changeMode(mode) {
             currentMode = mode;
             const prematchBtn = document.getElementById("mode-prematch-btn");
@@ -514,14 +514,13 @@
                 liveBtn.className = "mode-btn";
                 analyzeBtn.innerText = "АНАЛИЗИРОВАТЬ В РЕЖИМЕ ПРЕМАТЧ";
                 
-                // Переключаем CSS-переменные в Зелёный код (Prematch)
+                // Переключаем CSS-переменные в Зелёный код (Кавычки восстановлены!)
                 root.style.setProperty('--accent-color', '#00ff66');
                 root.style.setProperty('--border-color', '#1b2d22');
-                root.style.setProperty('--card-bg', #0d1510);
+                root.style.setProperty('--card-bg', '#0d1510');
                 root.style.setProperty('--card-gradient', 'linear-gradient(145deg, #0d1510, #111e16)');
                 root.style.setProperty('--glow-color', 'rgba(0, 255, 102, 0.15)');
                 
-                // Стили сопутствующих блоков
                 document.getElementById("ui-toggle-box").style.background = "#0d1410";
                 document.getElementById("ui-toggle-box").style.borderColor = "#1b2d22";
                 document.getElementById("ui-upload-zone").style.background = "linear-gradient(145deg, #0e1812, #060a07)";
@@ -531,14 +530,13 @@
                 liveBtn.className = "mode-btn active-live";
                 analyzeBtn.innerText = "ЗАПУСТИТЬ LIVE-ПОМОЩНИКА ⚡";
                 
-                // Переключаем CSS-переменные в Агрессивный Красный код (LIVE)
+                // Переключаем CSS-переменные в Красный код
                 root.style.setProperty('--accent-color', '#ff4757');
                 root.style.setProperty('--border-color', '#3a1c21');
-                root.style.setProperty('--card-bg', #1a0f11);
+                root.style.setProperty('--card-bg', '#1a0f11');
                 root.style.setProperty('--card-gradient', 'linear-gradient(145deg, #1a0f11, #241316)');
                 root.style.setProperty('--glow-color', 'rgba(255, 71, 87, 0.18)');
                 
-                // Стили сопутствующих блоков
                 document.getElementById("ui-toggle-box").style.background = "#1a0f11";
                 document.getElementById("ui-toggle-box").style.borderColor = "#3a1c21";
                 document.getElementById("ui-upload-zone").style.background = "linear-gradient(145deg, #241316, #0e0708)";
@@ -754,7 +752,6 @@
                 liveScoreboard.style.display = "none";
             }
 
-            // Динамическая адаптация карточки финального вердикта под тему
             const finalCard = document.getElementById("ui-final-card");
             if (currentMode === 'single') {
                 finalCard.style.background = "linear-gradient(145deg, #0d1510, #16291b)";
@@ -793,7 +790,6 @@
                 </div>
             `;
 
-            // ТРИГГЕР ПЛАВНОЙ АНИМАЦИИ ЗАПЛЫВА ШКАЛЫ
             setTimeout(() => {
                 const bar = document.getElementById("ui-confidence-bar");
                 if(bar) bar.style.width = conf + "%";
