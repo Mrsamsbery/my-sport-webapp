@@ -6,10 +6,11 @@
     <title>Ставки AI Аналитика</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
+        /* ДИНАМИЧЕСКИЕ ПЕРЕМЕННЫЕ ТЕМЫ */
         :root {
             --bg-color: #06090e;
             --card-bg: #0d1510;
-            --accent-color: #00ff66;
+            --accent-color: #00ff66; /* Базовый прематч зеленый */
             --accent-hover: #00cc52;
             --text-color: #ffffff;
             --text-muted: #768c7e;
@@ -21,6 +22,9 @@
             --danger-color: #ff453a;
             --warning-color: #ffcc00;
             --live-color: #ff4757;
+            
+            /* Переменная для динамического Neon Glow свечения карточек */
+            --glow-color: rgba(0, 255, 102, 0.15);
         }
 
         body {
@@ -32,6 +36,7 @@
             box-sizing: border-box;
             -webkit-user-select: none;
             user-select: none;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .header {
@@ -45,15 +50,18 @@
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 1px;
-            text-shadow: 0 0 15px rgba(0, 255, 102, 0.3);
+            text-shadow: 0 0 15px var(--accent-color);
+            transition: all 0.5s ease;
         }
         .header p {
             font-size: 13px;
             color: var(--text-muted);
             margin: 0;
             font-weight: 500;
+            transition: all 0.5s ease;
         }
 
+        /* ТУМБЛЕР ПЕРЕКЛЮЧЕНИЯ РЕЖИМА */
         .mode-toggle-container {
             display: flex;
             gap: 10px;
@@ -63,6 +71,7 @@
             border: 1px solid var(--border-color);
             margin-bottom: 15px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.5s ease;
         }
         .mode-btn {
             flex: 1;
@@ -103,12 +112,14 @@
             font-weight: 600;
             color: var(--text-muted);
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: all 0.5s ease;
         }
         .widget .status-dot {
             color: var(--accent-color);
             text-shadow: 0 0 8px var(--accent-color);
             font-weight: 800;
             margin-right: 4px;
+            transition: all 0.5s ease;
         }
         .widget.vip-active {
             background: var(--vip-gradient);
@@ -119,6 +130,7 @@
             text-shadow: 0 0 8px rgba(0, 240, 255, 0.2);
         }
 
+        /* КАРТА ЗАГРУЗКИ */
         .upload-zone {
             background: linear-gradient(145deg, #0e1812, #060a07);
             border: 2px dashed rgba(0, 255, 102, 0.2);
@@ -128,7 +140,7 @@
             cursor: pointer;
             margin-bottom: 20px;
             position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
             animation: pulsing-glow 3s infinite alternate;
         }
@@ -137,14 +149,15 @@
             100% { border-color: rgba(0, 255, 102, 0.35); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 15px rgba(0, 255, 102, 0.05); }
         }
         .upload-zone:active { transform: scale(0.97); border-color: var(--accent-color); }
-        .upload-icon { font-size: 50px; margin-bottom: 12px; display: inline-block; filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.35)); }
+        .upload-icon { font-size: 50px; margin-bottom: 12px; display: inline-block; filter: drop-shadow(0 0 10px var(--accent-color)); transition: all 0.5s ease; }
         .upload-text { font-size: 15px; color: var(--text-color); font-weight: 700; margin-bottom: 14px; }
         
         .upload-hints { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .hint-tag { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; font-size: 10px; color: var(--text-muted); font-weight: 500; }
-        #preview-img { display: none; width: 110px; height: 110px; object-fit: cover; border-radius: 22px; margin: 0 auto 14px auto; border: 2px solid var(--accent-color); box-shadow: 0 0 20px rgba(0, 255, 102, 0.3); }
+        .hint-tag { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; font-size: 10px; color: var(--text-muted); font-weight: 500; transition: all 0.5s ease; }
+        #preview-img { display: none; width: 110px; height: 110px; object-fit: cover; border-radius: 22px; margin: 0 auto 14px auto; border: 2px solid var(--accent-color); box-shadow: 0 0 20px var(--accent-color); transition: all 0.5s ease; }
         #file-input { display: none; }
 
+        /* ГЛАВНАЯ КНОПКА */
         .btn {
             background: linear-gradient(90deg, var(--accent-color) 0%, #00ffaa 100%);
             color: #000000;
@@ -156,14 +169,14 @@
             font-weight: 800;
             letter-spacing: 0.5px;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 6px 20px rgba(0, 255, 102, 0.2);
         }
         .btn:active { transform: scale(0.98); }
         .btn:disabled {
-            background: #142119;
-            color: var(--text-muted);
-            box-shadow: none;
+            background: #142119 !important;
+            color: var(--text-muted) !important;
+            box-shadow: none !important;
             cursor: not-allowed;
             animation: none !important;
         }
@@ -238,7 +251,7 @@
             font-weight: bold;
             font-size: 14px;
             margin-bottom: 16px;
-            box-shadow: 0 0 15px rgba(255, 71, 87, 0.15);
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
         }
         .live-scoreboard-widget span strong {
             color: #ffffff;
@@ -246,6 +259,7 @@
             margin-left: 4px;
         }
 
+        /* ШТОРКА ДЛЯ ИСТОРИИ */
         .bottom-sheet {
             position: fixed;
             bottom: -100%; left: 0; right: 0;
@@ -268,6 +282,7 @@
         .history-match { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .history-pick { font-size: 12px; color: var(--accent-color); font-weight: 600; }
 
+        /* ВСПЛЫВАЮЩЕЕ ОКНО ПАРТНЕРКИ */
         .partner-sheet {
             position: fixed;
             bottom: -100%; left: 0; right: 0;
@@ -285,9 +300,10 @@
         .partner-text { font-size: 14px; line-height: 1.5; color: #e2e8f0; margin-bottom: 22px; }
         .partner-close-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; margin-top: 14px; cursor: pointer; text-decoration: underline; font-weight: 600; }
 
+        /* ЛОАДЕР */
         .loader-container { display: none; background: var(--card-gradient); border: 1px solid var(--border-color); padding: 24px; border-radius: 24px; margin: 25px 0; }
         .spinner-box { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
-        .spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 255, 102, 0.05); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 255, 102, 0.05); border-top: 4px solid var(--accent-color); border-radius: 50%; animation: spin 1s linear infinite; transition: all 0.5s ease; }
         .loader-steps { text-align: left; max-width: 280px; margin: 0 auto; }
         .step-item { font-size: 13px; color: var(--text-muted); margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .step-item.active { color: var(--accent-color); font-weight: 700; transform: translateX(4px); transition: all 0.3s; }
@@ -297,26 +313,38 @@
         .step-item.done .step-dot { background-color: #4a7556; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* КАРТОЧКИ РЕЗУЛЬТАТОВ С ЭФФЕКТОМ NEON GLOW */
         .results-panel { display: none; margin-top: 24px; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .panel-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; }
-        .card { background: var(--card-gradient); border: 1px solid var(--border-color); border-radius: 20px; padding: 16px; margin-bottom: 16px; }
-        .card-header { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
+        .panel-title { font-size: 17px; font-weight: 800; margin-bottom: 16px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.5s ease; }
+        
+        .card { 
+            background: var(--card-gradient); 
+            border: 1px solid var(--border-color); 
+            border-radius: 20px; 
+            padding: 16px; 
+            margin-bottom: 16px; 
+            box-shadow: 0 4px 20px var(--glow-color); /* Неоновое свечение */
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-header { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; transition: all 0.5s ease; }
         .card-body { font-size: 14px; line-height: 1.55; color: #e2e8f0; }
         .match-title { font-size: 19px; font-weight: 800; margin-bottom: 6px; }
-        .match-meta { font-size: 13px; color: var(--accent-color); font-weight: 600; }
-        .pick-highlight { font-size: 16px; font-weight: 700; background: rgba(0, 255, 102, 0.05); padding: 12px; border-radius: 12px; border-left: 4px solid var(--accent-color); }
+        .match-meta { font-size: 13px; color: var(--accent-color); font-weight: 600; transition: all 0.5s ease; }
+        .pick-highlight { font-size: 16px; font-weight: 700; background: rgba(0, 255, 102, 0.05); padding: 12px; border-radius: 12px; border-left: 4px solid var(--accent-color); transition: all 0.5s ease; }
+        
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
-        .stat-badge { background: #111a14; border: 1px solid var(--border-color); padding: 10px; border-radius: 12px; text-align: center; }
-        .stat-badge span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+        .stat-badge { background: #111a14; border: 1px solid var(--border-color); padding: 10px; border-radius: 12px; text-align: center; transition: all 0.5s ease; }
+        .stat-badge span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; transition: all 0.5s ease; }
         .stat-badge strong { font-size: 15px; color: #ffffff; }
 
+        /* АНИМИРОВАННАЯ ШКАЛА УВЕРЕННОСТИ */
         .confidence-box { margin-top: 14px; }
         .confidence-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
         .confidence-track { height: 8px; background: #16241c; border-radius: 4px; overflow: hidden; }
-        .confidence-bar { height: 100%; width: 0%; transition: width 1s ease-in-out; border-radius: 4px; }
+        .confidence-bar { height: 100%; width: 0%; transition: width 1.5s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 4px; }
         .bar-low { background: var(--warning-color); box-shadow: 0 0 8px rgba(255, 204, 0, 0.5); }
-        .bar-medium { background: var(--accent-color); box-shadow: 0 0 8px rgba(0, 255, 102, 0.5); }
+        .bar-medium { background: var(--accent-color); box-shadow: 0 0 8px var(--accent-color); }
         .bar-high { background: linear-gradient(90deg, #5856d6, #af52de); box-shadow: 0 0 12px rgba(175, 82, 222, 0.6); }
 
         .error-card { display: none; background-color: rgba(255, 69, 58, 0.08); border: 1px solid rgba(255, 69, 58, 0.25); border-radius: 16px; padding: 14px; color: #ff453a; font-size: 14px; text-align: center; margin-bottom: 20px; }
@@ -329,17 +357,17 @@
         <p>Нейросетевой разбор спортивных купонов</p>
     </div>
 
-    <div class="mode-toggle-container">
+    <div class="mode-toggle-container" id="ui-toggle-box">
         <button type="button" class="mode-btn active-prematch" id="mode-prematch-btn" onclick="changeMode('single')">📊 Прематч</button>
         <button type="button" class="mode-btn" id="mode-live-btn" onclick="changeMode('live')">⚡ LIVE-Помощник</button>
     </div>
 
     <div class="status-widgets">
-        <div class="widget"><span class="status-dot">●</span> ИИ: GPT-4o-mini</div>
+        <div class="widget" id="ui-widget-ai"><span class="status-dot">●</span> ИИ: GPT-4o-mini</div>
         <div class="widget" id="limit-info">Загрузка лимитов...</div>
     </div>
 
-    <div class="upload-zone" onclick="triggerFileInput()">
+    <div class="upload-zone" id="ui-upload-zone" onclick="triggerFileInput()">
         <img id="preview-img" src="" alt="Превью">
         <div id="upload-icon-box" class="upload-icon">📸</div>
         <div class="upload-text" id="upload-status-text">Нажмите для загрузки купона</div>
@@ -396,21 +424,18 @@
 
         <div id="badge-container"></div>
 
-        <div class="card" style="border-top: 3px solid var(--accent-color);">
+        <div class="card" id="ui-card-main" style="border-top: 3px solid var(--accent-color);">
             <div class="card-header">📌 Событие и турнир</div>
             <div class="match-title" id="ui-match-title">-</div>
             <div class="match-meta" id="ui-league">-</div>
         </div>
 
-        <!-- КАРТОЧКА С ОСНОВНЫМ ИСХОДОМ И СПЕЦИАЛЬНЫМИ СМОЛМАРКЕТАМИ -->
         <div class="card">
             <div class="card-header">🎯 Математический прогноз ИИ</div>
             <div class="pick-highlight" id="ui-capper-pick">-</div>
             
-            <!-- БЛОК СМОЛМАРКЕТОВ (УГЛОВЫЕ И ЖЁЛТЫЕ КАРТОЧКИ) -->
             <div style="margin-top: 14px; display: flex; flex-direction: column; gap: 10px;">
-                <!-- Угловые -->
-                <div style="background: rgba(0, 240, 255, 0.04); border-left: 3px solid #00f0ff; padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(0, 240, 255, 0.1); border-right: 1px solid rgba(0, 240, 255, 0.1); border-bottom: 1px solid rgba(0, 240, 255, 0.1);">
+                <div style="background: rgba(0, 240, 255, 0.04); border-left: 3px solid #00f0ff; padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border: 1px solid rgba(0, 240, 255, 0.1);">
                     <div>
                         <span style="color: #00f0ff; font-weight: 800; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">📐 Трендовые Угловые:</span>
                         <span id="ui-corners-pick" style="font-weight: 700; color: #ffffff; font-size: 14px;">Анализ...</span>
@@ -418,7 +443,6 @@
                     <span style="font-size: 18px; filter: drop-shadow(0 0 6px #00f0ff);">📐</span>
                 </div>
                 
-                <!-- Жёлтые карточки -->
                 <div style="background: rgba(255, 204, 0, 0.04); border-left: 3px solid #ffcc00; padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 204, 0, 0.1); border-right: 1px solid rgba(255, 204, 0, 0.1); border-bottom: 1px solid rgba(255, 204, 0, 0.1);">
                     <div>
                         <span style="color: #ffcc00; font-weight: 800; display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px;">🟨 Жёлтые Карточки (ЖК):</span>
@@ -433,11 +457,11 @@
             <div class="card-header">¼ Оценка валуйности (Value)</div>
             <div class="card-body" id="ui-value-verdict">-</div>
             <div class="stats-grid">
-                <div class="stat-badge">
+                <div class="stat-badge" id="ui-stat-badge-1">
                     <span>Выгода</span>
                     <strong id="ui-value-profit">-</strong>
                 </div>
-                <div class="stat-badge">
+                <div class="stat-badge" id="ui-widget-margin">
                     <span>Маржа БК</span>
                     <strong id="ui-margin-eval">-</strong>
                 </div>
@@ -454,8 +478,8 @@
             <div class="card-body" id="ui-head-to-head">-</div>
         </div>
 
-        <div class="card" style="background: linear-gradient(145deg, #0d1510, #16291b); border: 1px solid rgba(0, 255, 102, 0.3);">
-            <div class="card-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
+        <div class="card" id="ui-final-card" style="background: linear-gradient(145deg, #0d1510, #16291b); border: 1px solid rgba(0, 255, 102, 0.3);">
+            <div class="card-header" id="ui-final-header" style="color: var(--accent-color);">🧠 Расширенное обоснование ИИ</div>
             <div class="card-body" id="ui-final-verdict" style="font-weight: 600; color: #ffffff;">-</div>
 
             <div class="confidence-box" id="ui-confidence-container"></div>
@@ -475,11 +499,13 @@
             userId = tg.initDataUnsafe.user.id;
         }
 
+        // ДИНАМИЧЕСКАЯ СМЕНА ТЕМЫ ВСЕГО ПРИЛОЖЕНИЯ (Зеленая / Красная)
         function changeMode(mode) {
             currentMode = mode;
             const prematchBtn = document.getElementById("mode-prematch-btn");
             const liveBtn = document.getElementById("mode-live-btn");
             const analyzeBtn = document.getElementById("analyze-btn");
+            const root = document.documentElement;
 
             if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
@@ -487,11 +513,35 @@
                 prematchBtn.className = "mode-btn active-prematch";
                 liveBtn.className = "mode-btn";
                 analyzeBtn.innerText = "АНАЛИЗИРОВАТЬ В РЕЖИМЕ ПРЕМАТЧ";
-                analyzeBtn.style.background = "linear-gradient(90deg, var(--accent-color) 0%, #00ffaa 100%)";
+                
+                // Переключаем CSS-переменные в Зелёный код (Prematch)
+                root.style.setProperty('--accent-color', '#00ff66');
+                root.style.setProperty('--border-color', '#1b2d22');
+                root.style.setProperty('--card-bg', #0d1510);
+                root.style.setProperty('--card-gradient', 'linear-gradient(145deg, #0d1510, #111e16)');
+                root.style.setProperty('--glow-color', 'rgba(0, 255, 102, 0.15)');
+                
+                // Стили сопутствующих блоков
+                document.getElementById("ui-toggle-box").style.background = "#0d1410";
+                document.getElementById("ui-toggle-box").style.borderColor = "#1b2d22";
+                document.getElementById("ui-upload-zone").style.background = "linear-gradient(145deg, #0e1812, #060a07)";
+                analyzeBtn.style.background = "linear-gradient(90deg, #00ff66 0%, #00ffaa 100%)";
             } else {
                 prematchBtn.className = "mode-btn";
                 liveBtn.className = "mode-btn active-live";
                 analyzeBtn.innerText = "ЗАПУСТИТЬ LIVE-ПОМОЩНИКА ⚡";
+                
+                // Переключаем CSS-переменные в Агрессивный Красный код (LIVE)
+                root.style.setProperty('--accent-color', '#ff4757');
+                root.style.setProperty('--border-color', '#3a1c21');
+                root.style.setProperty('--card-bg', #1a0f11);
+                root.style.setProperty('--card-gradient', 'linear-gradient(145deg, #1a0f11, #241316)');
+                root.style.setProperty('--glow-color', 'rgba(255, 71, 87, 0.18)');
+                
+                // Стили сопутствующих блоков
+                document.getElementById("ui-toggle-box").style.background = "#1a0f11";
+                document.getElementById("ui-toggle-box").style.borderColor = "#3a1c21";
+                document.getElementById("ui-upload-zone").style.background = "linear-gradient(145deg, #241316, #0e0708)";
                 analyzeBtn.style.background = "linear-gradient(90deg, #ff4757 0%, #ff6b81 100%)";
             }
         }
@@ -684,9 +734,8 @@
             document.getElementById("ui-league").innerText = analysis.league || "Турнир не определен";
             document.getElementById("ui-capper-pick").innerText = analysis.capper_pick || "-";
             
-            // ВЫВОДИМ ДАННЫЕ В НОВЫЕ ПОЛЯ СМОЛМАРКЕТОВ
-            document.getElementById("ui-corners-pick").innerText = analysis.corners_pick || "Аналитика угловых недоступна для этого события";
-            document.getElementById("ui-cards-pick").innerText = analysis.cards_pick || "Аналитика карточек недоступна для этого события";
+            document.getElementById("ui-corners-pick").innerText = analysis.corners_pick || "Аналитика угловых недоступна";
+            document.getElementById("ui-cards-pick").innerText = analysis.cards_pick || "Аналитика карточек недоступна";
 
             document.getElementById("ui-value-verdict").innerHTML = formatToEmojiList(analysis.value_verdict, "⚠️");
             document.getElementById("ui-form-trends").innerHTML = formatToEmojiList(analysis.form_trends, "📈");
@@ -703,6 +752,16 @@
                 liveScoreboard.style.display = "flex";
             } else {
                 liveScoreboard.style.display = "none";
+            }
+
+            // Динамическая адаптация карточки финального вердикта под тему
+            const finalCard = document.getElementById("ui-final-card");
+            if (currentMode === 'single') {
+                finalCard.style.background = "linear-gradient(145deg, #0d1510, #16291b)";
+                finalCard.style.borderColor = "rgba(0, 255, 102, 0.3)";
+            } else {
+                finalCard.style.background = "linear-gradient(145deg, #1a0f11, #3a1519)";
+                finalCard.style.borderColor = "rgba(255, 71, 87, 0.3)";
             }
 
             const conf = parseInt(analysis.confidence_percent) || 75;
@@ -726,13 +785,19 @@
 
             document.getElementById("ui-confidence-container").innerHTML = `
                 <div class="confidence-label">
-                    <span style="color: var(--text-muted); font-size: 12px;">Уверенность модели: <strong style="color:var(--accent-color)">${conf}%</strong></span>
+                    <span style="color: var(--text-muted); font-size: 12px;">Уверенность модели: <strong style="color:var(--accent-color); transition: color 0.5s;">${conf}%</strong></span>
                     <strong style="font-size: 11px; font-weight:400; opacity:0.9;">${statusText}</strong>
                 </div>
                 <div class="confidence-track">
-                    <div class="confidence-bar ${barColorClass}" id="ui-confidence-bar" style="width: ${conf}%"></div>
+                    <div class="confidence-bar ${barColorClass}" id="ui-confidence-bar" style="width: 0%"></div>
                 </div>
             `;
+
+            // ТРИГГЕР ПЛАВНОЙ АНИМАЦИИ ЗАПЛЫВА ШКАЛЫ
+            setTimeout(() => {
+                const bar = document.getElementById("ui-confidence-bar");
+                if(bar) bar.style.width = conf + "%";
+            }, 100);
         }
 
         function toggleSheet(isOpen) {
