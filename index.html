@@ -20,6 +20,7 @@
             --vip-gradient: linear-gradient(145deg, #0a1c24, #08121a);
             --danger-color: #ff453a;
             --warning-color: #ffcc00;
+            --live-color: #ff4757; /* Добавили цвет для LIVE-режима */
         }
 
         body {
@@ -51,6 +52,40 @@
             color: var(--text-muted);
             margin: 0;
             font-weight: 500;
+        }
+
+        /* КНОПКИ ПЕРЕКЛЮЧЕНИЯ РЕЖИМА */
+        .mode-toggle-container {
+            display: flex;
+            gap: 10px;
+            background: #0d1410;
+            padding: 6px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background: transparent;
+            color: var(--text-muted);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mode-btn.active-prematch {
+            background: var(--accent-color);
+            color: #000000;
+            box-shadow: 0 0 15px rgba(0, 255, 102, 0.4);
+        }
+        .mode-btn.active-live {
+            background: var(--live-color);
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.5);
         }
 
         .status-widgets {
@@ -148,7 +183,7 @@
             font-weight: 800;
             text-decoration: none;
             display: flex;
-            justify-content: center;
+            justifyContent: center;
             align-items: center;
             width: 100%;
             padding: 16px;
@@ -194,6 +229,26 @@
             to { transform: scale(1.02); box-shadow: 0 0 18px rgba(255, 69, 58, 0.8); }
         }
 
+        /* НЕОНОВОЕ LIVE ТАБЛО МАТЧА */
+        .live-scoreboard-widget {
+            display: none;
+            justify-content: space-around;
+            background: rgba(255, 71, 87, 0.12);
+            border: 1px solid rgba(255, 71, 87, 0.4);
+            border-radius: 14px;
+            padding: 12px;
+            color: var(--live-color);
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 16px;
+            box-shadow: 0 0 15px rgba(255, 71, 87, 0.15);
+        }
+        .live-scoreboard-widget span strong {
+            color: #ffffff;
+            font-size: 15px;
+            margin-left: 4px;
+        }
+
         /* ШТОРКА ДЛЯ ИСТОРИИ */
         .bottom-sheet {
             position: fixed;
@@ -217,7 +272,7 @@
         .history-match { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .history-pick { font-size: 12px; color: var(--accent-color); font-weight: 600; }
 
-        /* ВСПЛЫВАЮЩЕЕ ОКНО ПАРТНЕРКИ (МГНОВЕННЫЙ БЛОК ПРИ ЛИМИТЕ) */
+        /* ВСПЛЫВАЮЩЕЕ ОКНО ПАРТНЕРКИ */
         .partner-sheet {
             position: fixed;
             bottom: -100%; left: 0; right: 0;
@@ -263,7 +318,7 @@
         .stat-badge span { display: block; font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
         .stat-badge strong { font-size: 15px; color: #ffffff; }
 
-        /* ТРЁХЦВЕТНАЯ ШКАЛА УВЕРЕННОСТИ */
+        /* ШКАЛА УВЕРЕННОСТИ */
         .confidence-box { margin-top: 14px; }
         .confidence-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; }
         .confidence-track { height: 8px; background: #16241c; border-radius: 4px; overflow: hidden; }
@@ -280,6 +335,11 @@
     <div class="header">
         <h1>Ставки AI Аналитика</h1>
         <p>Нейросетевой разбор спортивных купонов</p>
+    </div>
+
+    <div class="mode-toggle-container">
+        <button type="button" class="mode-btn active-prematch" id="mode-prematch-btn" onclick="changeMode('single')">📊 Прематч</button>
+        <button type="button" class="mode-btn" id="mode-live-btn" onclick="changeMode('live')">⚡ LIVE-Помощник</button>
     </div>
 
     <div class="status-widgets">
@@ -299,7 +359,7 @@
         <input type="file" id="file-input" accept="image/*" onchange="handleFileSelect(event)">
     </div>
 
-    <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ С КЛЮЧОМ AI</button>
+    <button class="btn" id="analyze-btn" disabled onclick="startAnalysis()">АНАЛИЗИРОВАТЬ В РЕЖИМЕ ПРЕМАТЧ</button>
     
     <button class="btn-quick-access" id="quick-access-btn" onclick="toggleSheet(true)">📋 История недавних разборов</button>
 
@@ -311,7 +371,6 @@
         <div id="history-list-container"></div>
     </div>
 
-    <!-- ТО САМОЕ ВСПЛЫВАЮЩЕЕ ОКНО БЛОКИРОВКИ ПРИ КЛИКЕ -->
     <div class="partner-sheet" id="partner-sheet">
         <div class="sheet-handle"></div>
         <div class="partner-title">🎁 Получить БЕЗЛИМИТ</div>
@@ -337,6 +396,11 @@
 
     <div class="results-panel" id="results-panel">
         <div class="panel-title">📋 Заключение нейроанализа</div>
+
+        <div class="live-scoreboard-widget" id="ui-live-scoreboard">
+            <span>⏱ Минута матча:<strong id="ui-live-minute">-</strong></span>
+            <span>⚽ Текущий счёт:<strong id="ui-live-score">-</strong></span>
+        </div>
 
         <div id="badge-container"></div>
 
@@ -391,9 +455,32 @@
         const BACKEND_URL = "https://sportaibrain.top";
         let selectedFile = null;
         let userId = "guest";
+        let currentMode = "single"; // По дефолту 'single' (Прематч)
 
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             userId = tg.initDataUnsafe.user.id;
+        }
+
+        // Функция переключения режимов Прематч / LIVE
+        function changeMode(mode) {
+            currentMode = mode;
+            const prematchBtn = document.getElementById("mode-prematch-btn");
+            const liveBtn = document.getElementById("mode-live-btn");
+            const analyzeBtn = document.getElementById("analyze-btn");
+
+            if (window.Telegram && tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+            if (mode === 'single') {
+                prematchBtn.className = "mode-btn active-prematch";
+                liveBtn.className = "mode-btn";
+                analyzeBtn.innerText = "АНАЛИЗИРОВАТЬ В РЕЖИМЕ ПРЕМАТЧ";
+                analyzeBtn.style.background = "linear-gradient(90deg, var(--accent-color) 0%, #00ffaa 100%)";
+            } else {
+                prematchBtn.className = "mode-btn";
+                liveBtn.className = "mode-btn active-live";
+                analyzeBtn.innerText = "ЗАПУСТИТЬ LIVE-ПОМОЩНИКА ⚡";
+                analyzeBtn.style.background = "linear-gradient(90deg, #ff4757 0%, #ff6b81 100%)";
+            }
         }
 
         function formatToEmojiList(text, defaultEmoji = "🎯") {
@@ -533,7 +620,7 @@
                 const formData = new FormData();
                 formData.append("image", compressedBlob, "compressed.png");
                 formData.append("user_id", String(userId));
-                formData.append("mode", "single");
+                formData.append("mode", currentMode); // Отправляем ДИНАМИЧЕСКИЙ режим (single или live)
 
                 const response = await fetch(`${BACKEND_URL}/api/process/`, {
                     method: "POST",
@@ -549,7 +636,6 @@
                     analyzeBtn.classList.add("btn-ready-pulse");
 
                     if (data.limit_exceeded) {
-                        // МОМЕНТАЛЬНО ВЫБРАСЫВАЕМ ШТОРКУ ПАРТНЕРКИ НА ОШИБКЕ 403
                         document.getElementById("partner-message").innerHTML = data.message;
                         document.getElementById("partner-link-btn").href = data.link;
                         togglePartnerSheet(true);
@@ -593,6 +679,16 @@
             document.getElementById("ui-value-profit").innerText = analysis.value_profit || "-";
             document.getElementById("ui-margin-eval").innerText = analysis.margin_eval || "-";
             
+            // ОБРАБОТКА ДАННЫХ LIVE ДЛЯ НЕОНОВОГО ТАБЛО MATCH SCORE
+            const liveScoreboard = document.getElementById("ui-live-scoreboard");
+            if (analysis.live_minute && analysis.live_minute !== 'Прематч') {
+                document.getElementById("ui-live-minute").innerText = analysis.live_minute + "'";
+                document.getElementById("ui-live-score").innerText = analysis.live_score;
+                liveScoreboard.style.display = "flex";
+            } else {
+                liveScoreboard.style.display = "none";
+            }
+
             const conf = parseInt(analysis.confidence_percent) || 75;
 
             const badgeContainer = document.getElementById("badge-container");
